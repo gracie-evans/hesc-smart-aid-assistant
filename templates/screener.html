@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+
+{% block title %}Eligibility Screener - HESC Smart Aid Assistant{% endblock %}
+
+{% block content %}
+<div class="text-center mb-3">
+    <h1 style="font-size: 2.5rem; color: #1e3c72; margin-bottom: 1rem;">Financial Aid Eligibility Screener</h1>
+    <p class="text-large" style="color: #666;">
+        Answer these questions to determine which financial aid programs you're eligible for.
+    </p>
+</div>
+
+<div class="card" style="max-width: 600px; margin: 0 auto;">
+    <form action="{{ url_for('check_eligibility') }}" method="post" id="eligibilityForm">
+        <div class="form-group">
+            <label for="residency">
+                <strong>What is your residency status?</strong>
+                <small style="display: block; color: #666; font-weight: normal;">
+                    Select your current residency status for financial aid purposes
+                </small>
+            </label>
+            <select name="residency" id="residency" required>
+                <option value="">Select your residency status...</option>
+                <option value="NY">New York State Resident</option>
+                <option value="Other">Out-of-State / Other</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="gpa">
+                <strong>What is your current GPA?</strong>
+                <small style="display: block; color: #666; font-weight: normal;">
+                    Enter your cumulative GPA on a 4.0 scale. If you're a high school student, use your current GPA.
+                </small>
+            </label>
+            <input type="number" name="gpa" id="gpa" step="0.1" min="0" max="4.0" placeholder="e.g., 3.5" required>
+        </div>
+
+        <div class="form-group">
+            <label for="income">
+                <strong>What is your household income?</strong>
+                <small style="display: block; color: #666; font-weight: normal;">
+                    Enter your total annual household income before taxes (combined income of you and your parents/spouse if applicable)
+                </small>
+            </label>
+            <input type="number" name="income" id="income" min="0" placeholder="e.g., 75000" required>
+            <small style="color: #666; font-size: 0.9rem; display: block; margin-top: 0.5rem;">
+                💡 This information is used only for eligibility screening and is not stored permanently.
+            </small>
+        </div>
+
+        <div class="form-group">
+            <label for="enrollment">
+                <strong>Are you planning to enroll full-time?</strong>
+                <small style="display: block; color: #666; font-weight: normal;">
+                    Full-time is typically 12+ credit hours per semester. Some programs also support part-time students.
+                </small>
+            </label>
+            <select name="enrollment" id="enrollment" required>
+                <option value="">Select enrollment status...</option>
+                <option value="Yes">Yes, full-time (12+ credits)</option>
+                <option value="No">No, part-time (less than 12 credits)</option>
+            </select>
+        </div>
+
+        <div class="text-center mt-3">
+            <button type="submit" class="btn" style="font-size: 1.1rem; padding: 15px 30px;">
+                🔍 Check My Eligibility
+            </button>
+        </div>
+    </form>
+</div>
+
+<div class="card mt-3">
+    <h3 style="color: #1e3c72; margin-bottom: 1rem;">📋 What Happens Next?</h3>
+    <div class="grid grid-2">
+        <div>
+            <h4 style="color: #2a5298; margin-bottom: 0.5rem;">1. Instant Results</h4>
+            <p style="margin-bottom: 1rem;">
+                You'll immediately see which programs you're eligible for, including award amounts and deadlines.
+            </p>
+            
+            <h4 style="color: #2a5298; margin-bottom: 0.5rem;">2. Document Requirements</h4>
+            <p style="margin-bottom: 1rem;">
+                View the specific documents needed for each program you qualify for.
+            </p>
+        </div>
+        <div>
+            <h4 style="color: #2a5298; margin-bottom: 0.5rem;">3. Track Your Progress</h4>
+            <p style="margin-bottom: 1rem;">
+                Use our document tracker to monitor your application status and stay organized.
+            </p>
+            
+            <h4 style="color: #2a5298; margin-bottom: 0.5rem;">4. Get Support</h4>
+            <p>
+                Use the chat assistant for answers to specific questions about programs or requirements.
+            </p>
+        </div>
+    </div>
+</div>
+
+<div class="alert alert-info">
+    <strong>🔒 Privacy Notice:</strong> 
+    Your information is used only for eligibility screening and is stored temporarily in your browser session. No personal data is permanently saved or shared.
+</div>
+
+<script>
+document.getElementById('eligibilityForm').addEventListener('submit', function(e) {
+    // Show loading state
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '⏳ Processing...';
+    submitBtn.disabled = true;
+    
+    // Re-enable after a delay (form will redirect anyway)
+    setTimeout(() => {
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+    }, 3000);
+});
+
+// Add real-time validation feedback
+document.getElementById('gpa').addEventListener('input', function(e) {
+    const gpa = parseFloat(e.target.value);
+    if (gpa > 4.0) {
+        e.target.setCustomValidity('GPA cannot exceed 4.0');
+    } else if (gpa < 0) {
+        e.target.setCustomValidity('GPA cannot be negative');
+    } else {
+        e.target.setCustomValidity('');
+    }
+});
+
+document.getElementById('income').addEventListener('input', function(e) {
+    const income = parseFloat(e.target.value);
+    if (income < 0) {
+        e.target.setCustomValidity('Income cannot be negative');
+    } else {
+        e.target.setCustomValidity('');
+    }
+});
+</script>
+{% endblock %}

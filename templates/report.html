@@ -1,0 +1,244 @@
+{% extends "base.html" %}
+
+{% block title %}Eligibility Report - HESC Smart Aid Assistant{% endblock %}
+
+{% block content %}
+<div class="text-center mb-3">
+    <h1 style="font-size: 2.5rem; color: #1e3c72; margin-bottom: 1rem;">Your Eligibility Report</h1>
+    <p class="text-large" style="color: #666;">
+        Comprehensive summary of your financial aid eligibility and next steps.
+    </p>
+</div>
+
+<div id="reportContainer">
+    <!-- Report will be loaded here via JavaScript -->
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    loadReport();
+});
+
+function loadReport() {
+    fetch('/api/user_data')
+        .then(response => response.json())
+        .then(data => {
+            const container = document.getElementById('reportContainer');
+            
+            if (!data.eligibility_results || data.eligibility_results.length === 0) {
+                container.innerHTML = `
+                    <div class="card text-center">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">📊</div>
+                        <h3 style="color: #1e3c72; margin-bottom: 1rem;">No Screening Results Yet</h3>
+                        <p style="margin-bottom: 1.5rem;">
+                            Complete the eligibility screener to generate your personalized financial aid report.
+                        </p>
+                        <a href="/screener" class="btn">Start Eligibility Screener</a>
+                    </div>
+                `;
+                return;
+            }
+
+            const userData = data.user_data;
+            const eligiblePrograms = data.eligible_programs || [];
+            const ineligiblePrograms = data.ineligible_programs || [];
+            const totalAward = eligiblePrograms.reduce((sum, program) => sum + program.award_amount, 0);
+            
+            // Generate report HTML
+            let html = `
+                <!-- Summary Overview -->
+                <div class="card">
+                    <h2 style="color: #1e3c72; margin-bottom: 1.5rem; text-align: center;">📋 Eligibility Summary</h2>
+                    <div class="grid grid-3">
+                        <div class="text-center" style="padding: 1rem; background: #d4edda; border-radius: 10px;">
+                            <div style="font-size: 2rem; margin-bottom: 0.5rem;">✅</div>
+                            <h4 style="color: #155724; margin-bottom: 0.5rem;">${eligiblePrograms.length}</h4>
+                            <p style="color: #155724; margin: 0;">Eligible Programs</p>
+                        </div>
+                        <div class="text-center" style="padding: 1rem; background: #cce7ff; border-radius: 10px;">
+                            <div style="font-size: 2rem; margin-bottom: 0.5rem;">💰</div>
+                            <h4 style="color: #004085; margin-bottom: 0.5rem;">$${totalAward.toLocaleString()}</h4>
+                            <p style="color: #004085; margin: 0;">Total Potential Aid</p>
+                        </div>
+                        <div class="text-center" style="padding: 1rem; background: #f8d7da; border-radius: 10px;">
+                            <div style="font-size: 2rem; margin-bottom: 0.5rem;">❌</div>
+                            <h4 style="color: #721c24; margin-bottom: 0.5rem;">${ineligiblePrograms.length}</h4>
+                            <p style="color: #721c24; margin: 0;">Ineligible Programs</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Your Profile -->
+                <div class="card">
+                    <h3 style="color: #1e3c72; margin-bottom: 1rem;">👤 Your Profile</h3>
+                    <div class="grid grid-2">
+                        <div>
+                            <p><strong>Residency:</strong> ${userData.residency === 'NY' ? 'New York State Resident' : 'Out-of-State'}</p>
+                            <p><strong>GPA:</strong> ${userData.gpa}</p>
+                        </div>
+                        <div>
+                            <p><strong>Household Income:</strong> $${userData.income.toLocaleString()}</p>
+                            <p><strong>Enrollment:</strong> ${userData.enrollment === 'Yes' ? 'Full-time' : 'Part-time'}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Eligible Programs Section
+            if (eligiblePrograms.length > 0) {
+                html += `
+                    <div class="card">
+                        <h3 style="color: #155724; margin-bottom: 1.5rem;">✅ Programs You're Eligible For</h3>
+                        <div class="grid grid-2">
+                `;
+                
+                eligiblePrograms.forEach(program => {
+                    const docs = data.documents[program.program] || {};
+                    const totalDocs = program.required_documents.length;
+                    const completedDocs = Object.values(docs).filter(doc => doc.status === 'Received').length;
+                    
+                    html += `
+                        <div style="border: 2px solid #d4edda; border-radius: 10px; padding: 1.5rem; background: #f8fff9;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                                <h4 style="color: #155724; margin: 0;">${program.program}</h4>
+                                <span class="status-badge status-eligible">Eligible</span>
+                            </div>
+                            
+                            <p style="color: #666; margin-bottom: 1rem; font-size: 0.9rem;">${program.description}</p>
+                            
+                            <div style="margin-bottom: 1rem;">
+                                <p style="margin: 0.25rem 0;"><strong>Award Amount:</strong> <span style="color: #155724; font-weight: bold;">$${program.award_amount.toLocaleString()}</span></p>
+                                <p style="margin: 0.25rem 0;"><strong>Deadline:</strong> <span style="color: #dc3545;">${program.deadline}</span></p>
+                                <p style="margin: 0.25rem 0;"><strong>Documents:</strong> ${completedDocs}/${totalDocs} completed</p>
+                            </div>
+                            
+                            <div style="margin-top: 1rem;">
+                                <a href="/documents" class="btn btn-success" style="width: 100%; margin-bottom: 0.5rem;">
+                                    📄 Manage Documents
+                                </a>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                html += `
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Ineligible Programs Section
+            if (ineligiblePrograms.length > 0) {
+                html += `
+                    <div class="card">
+                        <h3 style="color: #721c24; margin-bottom: 1.5rem;">❌ Programs You're Not Eligible For</h3>
+                        <div class="grid grid-2">
+                `;
+                
+                ineligiblePrograms.forEach(program => {
+                    html += `
+                        <div style="border: 2px solid #f8d7da; border-radius: 10px; padding: 1.5rem; background: #fdf2f2;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                                <h4 style="color: #721c24; margin: 0;">${program.program}</h4>
+                                <span class="status-badge status-ineligible">Ineligible</span>
+                            </div>
+                            
+                            <p style="color: #666; margin-bottom: 1rem; font-size: 0.9rem;">${program.description}</p>
+                            
+                            <div style="margin-bottom: 1rem;">
+                                <p style="margin: 0.25rem 0;"><strong>Award Amount:</strong> $${program.award_amount.toLocaleString()}</p>
+                                <p style="margin: 0.25rem 0;"><strong>Deadline:</strong> ${program.deadline}</p>
+                            </div>
+                            
+                            <div style="background: #f8d7da; padding: 1rem; border-radius: 5px;">
+                                <h5 style="color: #721c24; margin-bottom: 0.5rem;">Reasons for ineligibility:</h5>
+                                <ul style="margin: 0; color: #721c24;">
+                `;
+                
+                program.reasons.forEach(reason => {
+                    html += `<li>${reason}</li>`;
+                });
+                
+                html += `
+                                </ul>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                html += `
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Next Steps Section
+            html += `
+                <div class="card">
+                    <h3 style="color: #1e3c72; margin-bottom: 1.5rem;">🎯 Next Steps</h3>
+                    <div class="grid grid-2">
+                        <div>
+                            <h4 style="color: #2a5298; margin-bottom: 1rem;">📋 Immediate Actions</h4>
+                            <ul style="list-style: none; padding: 0;">
+            `;
+            
+            if (eligiblePrograms.length > 0) {
+                html += `
+                    <li style="padding: 0.5rem; margin: 0.5rem 0; background: #f8f9fa; border-radius: 5px; border-left: 4px solid #28a745;">
+                        ✅ Complete document uploads for eligible programs
+                    </li>
+                    <li style="padding: 0.5rem; margin: 0.5rem 0; background: #f8f9fa; border-radius: 5px; border-left: 4px solid #1e3c72;">
+                        📅 Mark application deadlines in your calendar
+                    </li>
+                    <li style="padding: 0.5rem; margin: 0.5rem 0; background: #f8f9fa; border-radius: 5px; border-left: 4px solid #2a5298;">
+                        🌐 Complete FAFSA at studentaid.gov
+                    </li>
+                `;
+            } else {
+                html += `
+                    <li style="padding: 0.5rem; margin: 0.5rem 0; background: #f8f9fa; border-radius: 5px; border-left: 4px solid #dc3545;">
+                        📞 Contact financial aid office for alternative options
+                    </li>
+                    <li style="padding: 0.5rem; margin: 0.5rem 0; background: #f8f9fa; border-radius: 5px; border-left: 4px solid #856404;">
+                        🔍 Look into private scholarships and grants
+                    </li>
+                `;
+            }
+            
+            html += `
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 style="color: #2a5298; margin-bottom: 1rem;">📞 Get Help</h4>
+                            <div style="background: #e3f2fd; padding: 1rem; border-radius: 5px;">
+                                <p style="margin: 0 0 1rem 0;"><strong>HESC Help Line:</strong><br>1-888-NYS-HESC</p>
+                                <p style="margin: 0 0 1rem 0;"><strong>Federal Aid Info:</strong><br>1-800-4-FED-AID</p>
+                                <p style="margin: 0;"><strong>Web Resources:</strong><br>hesc.ny.gov<br>studentaid.gov</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="text-center">
+                    <a href="/documents" class="btn" style="margin: 0.5rem;">📄 Manage Documents</a>
+                    <a href="/screener" class="btn btn-secondary" style="margin: 0.5rem;">🔄 Retake Screener</a>
+                    <button onclick="window.print()" class="btn btn-secondary" style="margin: 0.5rem;">🖨️ Print Report</button>
+                </div>
+            `;
+
+            container.innerHTML = html;
+        })
+        .catch(error => {
+            console.error('Error loading report:', error);
+            document.getElementById('reportContainer').innerHTML = `
+                <div class="card text-center">
+                    <div class="alert alert-danger">
+                        <strong>Error:</strong> Unable to load eligibility report. Please refresh the page and try again.
+                    </div>
+                </div>
+            `;
+        });
+}
+</script>
+{% endblock %}

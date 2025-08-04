@@ -1,0 +1,184 @@
+{% extends "base.html" %}
+
+{% block title %}Document Verification - HESC Smart Aid Assistant{% endblock %}
+
+{% block content %}
+<div class="text-center mb-3">
+    <h1 style="font-size: 2.5rem; color: #1e3c72; margin-bottom: 1rem;">Document Verification Center</h1>
+    <p class="text-large" style="color: #666;">
+        Track and upload required documents for your eligible financial aid programs.
+    </p>
+</div>
+
+<div id="documentsContainer">
+    <!-- Documents will be loaded here via JavaScript -->
+</div>
+
+<div class="alert alert-info">
+    <strong>📄 Document Upload Simulation:</strong> 
+    This is a demonstration version. In the full application, documents would be securely uploaded and verified by financial aid staff.
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    loadDocuments();
+});
+
+function loadDocuments() {
+    fetch('/api/user_data')
+        .then(response => response.json())
+        .then(data => {
+            const container = document.getElementById('documentsContainer');
+            
+            if (!data.eligible_programs || data.eligible_programs.length === 0) {
+                container.innerHTML = `
+                    <div class="card text-center">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">📝</div>
+                        <h3 style="color: #1e3c72; margin-bottom: 1rem;">No Eligible Programs Yet</h3>
+                        <p style="margin-bottom: 1.5rem;">
+                            Complete the eligibility screener first to see which documents you need to upload.
+                        </p>
+                        <a href="/screener" class="btn">Start Eligibility Screener</a>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            
+            data.eligible_programs.forEach(program => {
+                const programDocs = data.documents[program.program] || {};
+                const totalDocs = program.required_documents.length;
+                const completedDocs = Object.values(programDocs).filter(doc => doc.status === 'Received').length;
+                const completionPercent = Math.round((completedDocs / totalDocs) * 100);
+                
+                html += `
+                    <div class="card">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                            <h3 style="color: #1e3c72; margin: 0;">${program.program}</h3>
+                            <div>
+                                <span class="status-badge ${completionPercent === 100 ? 'status-received' : 'status-pending'}">
+                                    ${completedDocs}/${totalDocs} Documents
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div style="background: #f8f9fa; padding: 1rem; border-radius: 5px; margin-bottom: 1.5rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                                <span style="font-weight: 600;">Progress: ${completionPercent}%</span>
+                                <span style="font-size: 0.9rem; color: #666;">Deadline: ${program.deadline}</span>
+                            </div>
+                            <div style="background: #e9ecef; height: 10px; border-radius: 5px; overflow: hidden;">
+                                <div style="background: linear-gradient(135deg, #28a745 0%, #34ce57 100%); height: 100%; width: ${completionPercent}%; transition: width 0.3s;"></div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-2">
+                `;
+                
+                program.required_documents.forEach(doc => {
+                    const docStatus = programDocs[doc] || { status: 'Pending', uploaded_date: null };
+                    const isReceived = docStatus.status === 'Received';
+                    
+                    html += `
+                        <div style="border: 1px solid #e9ecef; border-radius: 5px; padding: 1rem; margin-bottom: 1rem;">
+                            <div style="display: flex; justify-content: between; align-items: center; margin-bottom: 0.5rem;">
+                                <h5 style="margin: 0; color: #333; flex: 1;">${doc}</h5>
+                                <span class="status-badge ${isReceived ? 'status-received' : 'status-pending'}">
+                                    ${docStatus.status}
+                                </span>
+                            </div>
+                            
+                            ${isReceived ? 
+                                `<p style="font-size: 0.9rem; color: #666; margin: 0.5rem 0;">
+                                    Uploaded: ${docStatus.uploaded_date}
+                                </p>` : ''
+                            }
+                            
+                            <button onclick="uploadDocument('${program.program}', '${doc}')" 
+                                    class="btn ${isReceived ? 'btn-secondary' : ''}" 
+                                    style="width: 100%; margin-top: 0.5rem;">
+                                ${isReceived ? '✓ Re-upload' : '📤 Upload'}
+                            </button>
+                        </div>
+                    `;
+                });
+                
+                html += `
+                        </div>
+                        
+                        <div class="alert ${completionPercent === 100 ? 'alert-success' : 'alert-info'}">
+                            ${completionPercent === 100 ? 
+                                `<strong>✅ All documents received!</strong> Your application for ${program.program} is ready for review.` :
+                                `<strong>📋 ${totalDocs - completedDocs} document(s) remaining.</strong> Upload the missing documents to complete your application.`
+                            }
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        })
+        .catch(error => {
+            console.error('Error loading documents:', error);
+            document.getElementById('documentsContainer').innerHTML = `
+                <div class="card text-center">
+                    <div class="alert alert-danger">
+                        <strong>Error:</strong> Unable to load document information. Please refresh the page and try again.
+                    </div>
+                </div>
+            `;
+        });
+}
+
+function uploadDocument(program, document) {
+    const formData = new FormData();
+    formData.append('program', program);
+    formData.append('document', document);
+    
+    // Show loading state
+    event.target.innerHTML = '⏳ Uploading...';
+    event.target.disabled = true;
+    
+    fetch('/upload_document', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            // Show success message
+            showNotification('Document uploaded successfully!', 'success');
+            
+            // Reload documents to reflect changes
+            setTimeout(() => {
+                loadDocuments();
+            }, 500);
+        } else {
+            showNotification('Upload failed. Please try again.', 'error');
+            event.target.innerHTML = '📤 Upload';
+            event.target.disabled = false;
+        }
+    })
+    .catch(error => {
+        console.error('Upload error:', error);
+        showNotification('Upload failed. Please try again.', 'error');
+        event.target.innerHTML = '📤 Upload';
+        event.target.disabled = false;
+    });
+}
+
+function showNotification(message, type) {
+    const notification = document.createElement('div');
+    notification.className = `alert alert-${type === 'success' ? 'success' : 'danger'}`;
+    notification.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 1000; max-width: 400px;';
+    notification.innerHTML = message;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.remove();
+    }, 3000);
+}
+</script>
+{% endblock %}

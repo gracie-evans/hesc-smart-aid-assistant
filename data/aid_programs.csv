@@ -1,0 +1,9 @@
+program_name,residency_required,min_gpa,max_income,enrollment_required,required_documents,deadline,award_amount,description
+TAP,NY,2.0,80000,Yes,"FAFSA;NY State Tax Return;Social Security Card;High School Transcript",May 1,5165,"The Tuition Assistance Program (TAP) helps eligible NY residents pay tuition at approved schools in New York State."
+Pell Grant,Any,0.0,60000,Yes,"FAFSA;Social Security Card;Driver's License;Tax Return",June 30,6895,"The Pell Grant is a federal grant for low-income students. It does not need to be repaid."
+Excelsior Scholarship,NY,3.0,125000,Yes,"FAFSA;TAP Application;NY Residency Form;College Transcript",July 31,5500,"The Excelsior Scholarship covers tuition for eligible NY State residents at SUNY and CUNY schools."
+SEOG,Any,2.5,50000,Yes,"FAFSA;Financial Aid Transcript;Enrollment Verification",March 15,4000,"The Supplemental Educational Opportunity Grant provides additional funding for students with exceptional financial need."
+NYS Dream Act,NY,2.0,100000,Yes,"NYS Dream Act Application;Tax Return;High School Transcript;Identity Documents",May 1,5000,"Provides financial aid to undocumented students and other non-citizens who meet specific criteria."
+Enhanced Tuition Award,NY,2.5,110000,Yes,"FAFSA;TAP Application;Enrollment Verification;Academic Transcript",June 15,6000,"Enhanced award for high-achieving NY residents at private colleges."
+Part-Time TAP,NY,2.0,80000,No,"FAFSA;TAP Application;Part-time Enrollment Form;Academic Transcript",May 1,2000,"Tuition assistance for part-time NY resident students."
+College Choice Tuition Program,NY,3.2,80000,Yes,"FAFSA;High School Transcript;College Acceptance Letter;Residency Proof",April 30,6000,"Merit-based program for high-achieving NY students attending in-state private colleges."

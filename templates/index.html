@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block title %}Welcome - HESC Smart Aid Assistant{% endblock %}
+
+{% block content %}
+<div class="text-center mb-3">
+    <h1 style="font-size: 2.5rem; color: #1e3c72; margin-bottom: 1rem;">Welcome to HESC Smart Aid Assistant</h1>
+    <p class="text-large" style="color: #666; max-width: 800px; margin: 0 auto;">
+        Your comprehensive tool for navigating New York State financial aid programs. 
+        Check your eligibility, track required documents, and get instant answers to your financial aid questions.
+    </p>
+</div>
+
+<div class="grid grid-3">
+    <div class="card text-center">
+        <div style="font-size: 3rem; margin-bottom: 1rem;">📊</div>
+        <h3 style="color: #1e3c72; margin-bottom: 1rem;">Eligibility Screener</h3>
+        <p style="margin-bottom: 1.5rem;">
+            Answer a few quick questions to see which financial aid programs you qualify for based on your residency, GPA, income, and enrollment status.
+        </p>
+        <a href="{{ url_for('screener') }}" class="btn">Start Screening</a>
+    </div>
+
+    <div class="card text-center">
+        <div style="font-size: 3rem; margin-bottom: 1rem;">📄</div>
+        <h3 style="color: #1e3c72; margin-bottom: 1rem;">Document Tracking</h3>
+        <p style="margin-bottom: 1.5rem;">
+            Keep track of all required documents for your eligible programs. Upload and monitor the status of your applications in one place.
+        </p>
+        <a href="{{ url_for('documents') }}" class="btn">Manage Documents</a>
+    </div>
+
+    <div class="card text-center">
+        <div style="font-size: 3rem; margin-bottom: 1rem;">📋</div>
+        <h3 style="color: #1e3c72; margin-bottom: 1rem;">Eligibility Report</h3>
+        <p style="margin-bottom: 1.5rem;">
+            Get a comprehensive summary of your eligibility status, potential awards, deadlines, and next steps for all financial aid programs.
+        </p>
+        <a href="{{ url_for('report') }}" class="btn">View Report</a>
+    </div>
+</div>
+
+<div class="card mt-3">
+    <h2 style="color: #1e3c72; margin-bottom: 1.5rem; text-align: center;">Available Financial Aid Programs</h2>
+    <div class="grid grid-2">
+        <div>
+            <h4 style="color: #2a5298; margin-bottom: 0.5rem;">🏛️ New York State Programs</h4>
+            <ul style="list-style: none; padding: 0;">
+                <li style="padding: 0.5rem; margin: 0.5rem 0; background: #f8f9fa; border-radius: 5px; border-left: 4px solid #1e3c72;">
+                    <strong>TAP</strong> - Tuition Assistance Program (up to $5,165)
+                </li>
+                <li style="padding: 0.5rem; margin: 0.5rem 0; background: #f8f9fa; border-radius: 5px; border-left: 4px solid #1e3c72;">
+                    <strong>Excelsior Scholarship</strong> - Free SUNY/CUNY tuition (up to $5,500)
+                </li>
+                <li style="padding: 0.5rem; margin: 0.5rem 0; background: #f8f9fa; border-radius: 5px; border-left: 4px solid #1e3c72;">
+                    <strong>Enhanced Tuition Award</strong> - Private college aid (up to $6,000)
+                </li>
+                <li style="padding: 0.5rem; margin: 0.5rem 0; background: #f8f9fa; border-radius: 5px; border-left: 4px solid #1e3c72;">
+                    <strong>NYS Dream Act</strong> - Aid for undocumented students (up to $5,000)
+                </li>
+            </ul>
+        </div>
+        <div>
+            <h4 style="color: #2a5298; margin-bottom: 0.5rem;">🇺🇸 Federal Programs</h4>
+            <ul style="list-style: none; padding: 0;">
+                <li style="padding: 0.5rem; margin: 0.5rem 0; background: #f8f9fa; border-radius: 5px; border-left: 4px solid #2a5298;">
+                    <strong>Pell Grant</strong> - Federal need-based grant (up to $6,895)
+                </li>
+                <li style="padding: 0.5rem; margin: 0.5rem 0; background: #f8f9fa; border-radius: 5px; border-left: 4px solid #2a5298;">
+                    <strong>SEOG</strong> - Supplemental Educational Opportunity Grant (up to $4,000)
+                </li>
+            </ul>
+            <div class="mt-3">
+                <h4 style="color: #2a5298; margin-bottom: 0.5rem;">ℹ️ Need Help?</h4>
+                <p style="font-size: 0.9rem; color: #666;">
+                    Use the chat assistant in the bottom-right corner to get instant answers to common financial aid questions, or start with the eligibility screener to see which programs match your profile.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="alert alert-info mt-3">
+    <strong>💡 Getting Started:</strong> 
+    Click "Start Screening" above to begin your eligibility assessment. The process takes just 2 minutes and provides personalized results based on your specific situation.
+</div>
+{% endblock %}
