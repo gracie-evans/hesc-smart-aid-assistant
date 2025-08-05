@@ -161,16 +161,19 @@
 <div class="card">
     <h3 style="color: #1e3c72; margin-bottom: 1rem;">🎯 Next Steps & Recommendations</h3>
     
-    {% set total_missing = eligible_programs|sum(attribute='missing_documents')|length %}
+    {% set ns = namespace(total_missing=0) %}
+    {% for program in eligible_programs %}
+        {% set ns.total_missing = ns.total_missing + program.missing_documents|length %}
+    {% endfor %}
     {% set unverified_count = eligible_programs|rejectattr('verified')|list|length %}
     
     <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 5px;">
         <h4 style="color: #2a5298; margin-bottom: 1rem;">Immediate Actions Required</h4>
         
-        {% if total_missing > 0 %}
+        {% if ns.total_missing > 0 %}
         <div style="margin-bottom: 1rem;">
             <p style="color: #c62828; font-weight: bold; margin-bottom: 0.5rem;">📄 Document Collection Priority</p>
-            <p style="margin: 0; color: #333;">Student needs to submit {{ total_missing }} missing document(s) across {{ eligible_programs|rejectattr('missing_documents', 'equalto', [])|list|length }} program(s). Follow up on document submission deadlines.</p>
+            <p style="margin: 0; color: #333;">Student needs to submit {{ ns.total_missing }} missing document(s) across {{ eligible_programs|rejectattr('missing_documents', 'equalto', [])|list|length }} program(s). Follow up on document submission deadlines.</p>
         </div>
         {% endif %}
         
@@ -181,7 +184,7 @@
         </div>
         {% endif %}
         
-        {% if total_missing == 0 and unverified_count == 0 and eligible_programs %}
+        {% if ns.total_missing == 0 and unverified_count == 0 and eligible_programs %}
         <div style="margin-bottom: 1rem;">
             <p style="color: #2e7d32; font-weight: bold; margin-bottom: 0.5rem;">🎉 All Requirements Complete</p>
             <p style="margin: 0; color: #333;">Student has completed all requirements for eligible programs. Aid processing can proceed.</p>
