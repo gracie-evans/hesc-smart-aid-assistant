@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+
+{% block title %}Employee Login - HESC Smart Aid Assistant{% endblock %}
+
+{% block content %}
+<div class="text-center mb-3">
+    <h1 style="font-size: 2.5rem; color: #1e3c72; margin-bottom: 1rem;">🔐 Employee Login</h1>
+    <p class="text-large" style="color: #666;">
+        Access the HESC staff dashboard to manage student records and eligibility verification.
+    </p>
+</div>
+
+<div class="card" style="max-width: 500px; margin: 0 auto;">
+    <form action="{{ url_for('employee_login') }}" method="post" id="loginForm">
+        <div class="form-group">
+            <label for="username">
+                <strong>Username</strong>
+                <small style="display: block; color: #666; font-weight: normal;">
+                    Enter your HESC employee username
+                </small>
+            </label>
+            <input type="text" name="username" id="username" required placeholder="Enter username" autofocus>
+        </div>
+
+        <div class="form-group">
+            <label for="password">
+                <strong>Password</strong>
+                <small style="display: block; color: #666; font-weight: normal;">
+                    Enter your secure password
+                </small>
+            </label>
+            <input type="password" name="password" id="password" required placeholder="Enter password">
+        </div>
+
+        <div class="text-center mt-3">
+            <button type="submit" class="btn" style="font-size: 1.1rem; padding: 15px 30px; width: 100%;">
+                🔑 Login to Dashboard
+            </button>
+        </div>
+    </form>
+</div>
+
+<div class="card mt-3">
+    <h3 style="color: #1e3c72; margin-bottom: 1rem;">📋 Demo Accounts</h3>
+    <p style="color: #666; margin-bottom: 1rem;">For demonstration purposes, use one of these accounts:</p>
+    
+    <div class="grid grid-2">
+        <div style="background: #f8f9fa; padding: 1rem; border-radius: 5px; border-left: 4px solid #1e3c72;">
+            <h4 style="color: #1e3c72; margin-bottom: 0.5rem;">Administrator</h4>
+            <p style="margin: 0.25rem 0;"><strong>Username:</strong> <code>admin</code></p>
+            <p style="margin: 0.25rem 0;"><strong>Password:</strong> <code>hesc2024</code></p>
+            <p style="font-size: 0.9rem; color: #666; margin-top: 0.5rem;">Full system access</p>
+        </div>
+        
+        <div style="background: #f8f9fa; padding: 1rem; border-radius: 5px; border-left: 4px solid #2a5298;">
+            <h4 style="color: #2a5298; margin-bottom: 0.5rem;">Financial Aid Staff</h4>
+            <p style="margin: 0.25rem 0;"><strong>Username:</strong> <code>staff1</code></p>
+            <p style="margin: 0.25rem 0;"><strong>Password:</strong> <code>staff123</code></p>
+            <p style="font-size: 0.9rem; color: #666; margin-top: 0.5rem;">Jane Smith - Counselor</p>
+        </div>
+    </div>
+    
+    <div style="background: #f8f9fa; padding: 1rem; border-radius: 5px; border-left: 4px solid #28a745; margin-top: 1rem;">
+        <h4 style="color: #28a745; margin-bottom: 0.5rem;">Senior Advisor</h4>
+        <p style="margin: 0.25rem 0;"><strong>Username:</strong> <code>staff2</code></p>
+        <p style="margin: 0.25rem 0;"><strong>Password:</strong> <code>advisor456</code></p>
+        <p style="font-size: 0.9rem; color: #666; margin-top: 0.5rem;">Michael Johnson - Senior Advisor</p>
+    </div>
+</div>
+
+<div class="alert alert-info mt-3">
+    <strong>🔒 Security Note:</strong> 
+    In a production environment, this would integrate with your organization's authentication system (LDAP, SSO, etc.) with proper password policies and multi-factor authentication.
+</div>
+
+<script>
+document.getElementById('loginForm').addEventListener('submit', function(e) {
+    // Show loading state
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '⏳ Logging in...';
+    submitBtn.disabled = true;
+    
+    // Re-enable after a delay (form will redirect anyway)
+    setTimeout(() => {
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+    }, 5000);
+});
+
+// Demo account quick-fill buttons
+function fillDemoAccount(username, password) {
+    document.getElementById('username').value = username;
+    document.getElementById('password').value = password;
+}
+
+// Add click handlers to demo account cards
+document.addEventListener('DOMContentLoaded', function() {
+    const demoCards = document.querySelectorAll('[style*="border-left: 4px solid"]');
+    demoCards.forEach(card => {
+        card.style.cursor = 'pointer';
+        card.style.transition = 'transform 0.2s, box-shadow 0.2s';
+        
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-2px)';
+            this.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+            this.style.boxShadow = 'none';
+        });
+        
+        card.addEventListener('click', function() {
+            const username = this.querySelector('code').textContent;
+            const password = this.querySelectorAll('code')[1].textContent;
+            fillDemoAccount(username, password);
+            
+            // Add visual feedback
+            this.style.background = '#e3f2fd';
+            setTimeout(() => {
+                this.style.background = '#f8f9fa';
+            }, 500);
+        });
+    });
+});
+</script>
+{% endblock %}

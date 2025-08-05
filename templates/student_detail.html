@@ -1,0 +1,288 @@
+{% extends "base.html" %}
+
+{% block title %}{{ student.name }} - Student Details{% endblock %}
+
+{% block content %}
+<div class="text-center mb-3">
+    <h1 style="font-size: 2.5rem; color: #1e3c72; margin-bottom: 0.5rem;">👤 Student Details</h1>
+    <p class="text-large" style="color: #666;">
+        Complete record and verification management for <strong>{{ student.name }}</strong>
+    </p>
+</div>
+
+<!-- Navigation -->
+<div style="margin-bottom: 2rem;">
+    <a href="{{ url_for('employee_dashboard') }}" class="btn btn-secondary">← Back to Dashboard</a>
+    <a href="{{ url_for('generate_student_report', student_id=student.student_id) }}" class="btn" style="float: right;">📋 Generate Report</a>
+</div>
+
+<!-- Student Profile -->
+<div class="card">
+    <h3 style="color: #1e3c72; margin-bottom: 1rem;">📋 Student Profile</h3>
+    <div class="grid grid-2">
+        <div>
+            <div style="background: #f8f9fa; padding: 1rem; border-radius: 5px;">
+                <h4 style="color: #2a5298; margin-bottom: 1rem;">Personal Information</h4>
+                <p style="margin: 0.5rem 0;"><strong>Full Name:</strong> {{ student.name }}</p>
+                <p style="margin: 0.5rem 0;"><strong>Student ID:</strong> {{ student.student_id }}</p>
+                <p style="margin: 0.5rem 0;"><strong>Email:</strong> {{ student.get('email', 'N/A') }}</p>
+                <p style="margin: 0.5rem 0;"><strong>Phone:</strong> {{ student.get('phone', 'N/A') }}</p>
+                <p style="margin: 0.5rem 0;"><strong>Status:</strong> 
+                    <span class="status-badge {{ 'status-received' if student.status == 'Completed' else 'status-pending' }}">
+                        {{ student.status }}
+                    </span>
+                </p>
+            </div>
+        </div>
+        <div>
+            <div style="background: #f8f9fa; padding: 1rem; border-radius: 5px;">
+                <h4 style="color: #2a5298; margin-bottom: 1rem;">Academic & Financial</h4>
+                <p style="margin: 0.5rem 0;"><strong>Residency:</strong> {{ 'New York State' if student.residency == 'NY' else student.residency }}</p>
+                <p style="margin: 0.5rem 0;"><strong>GPA:</strong> {{ student.gpa }} / 4.0</p>
+                <p style="margin: 0.5rem 0;"><strong>Household Income:</strong> ${{ "{:,}".format(student.household_income) }}</p>
+                <p style="margin: 0.5rem 0;"><strong>Enrollment:</strong> {{ student.enrollment_status }}</p>
+                <p style="margin: 0.5rem 0;"><strong>Last Updated:</strong> {{ student.last_updated[:10] if student.last_updated else 'N/A' }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Program Eligibility -->
+<div class="card">
+    <h3 style="color: #1e3c72; margin-bottom: 1rem;">💰 Program Eligibility & Verification</h3>
+    
+    {% for program in student.eligibility_results %}
+    <div style="border: 2px solid {% if program.eligible %}#c8e6c9{% else %}#ffcdd2{% endif %}; border-radius: 10px; padding: 1.5rem; margin-bottom: 1.5rem; background: {% if program.eligible %}#f1f8e9{% else %}#fafafa{% endif %};">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <h4 style="color: {% if program.eligible %}#2e7d32{% else %}#c62828{% endif %}; margin: 0;">
+                {% if program.eligible %}✅{% else %}❌{% endif %} {{ program.program }}
+            </h4>
+            <div>
+                {% if program.eligible %}
+                <span class="status-badge {{ 'status-received' if program.verified else 'status-pending' }}">
+                    {% if program.verified %}Verified{% else %}Pending Verification{% endif %}
+                </span>
+                {% else %}
+                <span class="status-badge status-ineligible">Ineligible</span>
+                {% endif %}
+            </div>
+        </div>
+        
+        {% if program.eligible %}
+        <div class="grid grid-2">
+            <div>
+                <p style="margin: 0.5rem 0;"><strong>Award Amount:</strong> <span style="color: #2e7d32; font-weight: bold;">${{ "{:,}".format(program.award_amount) }}</span></p>
+                <p style="margin: 0.5rem 0;"><strong>Deadline:</strong> {{ program.deadline }}</p>
+            </div>
+            <div style="text-align: right;">
+                <button onclick="toggleVerification('{{ program.program }}', {{ 'false' if program.verified else 'true' }})" 
+                        class="btn {{ 'btn-secondary' if program.verified else 'btn-success' }}" 
+                        style="margin-bottom: 0.5rem;">
+                    {% if program.verified %}🔓 Mark as Pending{% else %}✅ Mark as Verified{% endif %}
+                </button>
+            </div>
+        </div>
+        
+        <!-- Document Management -->
+        <div style="background: white; padding: 1rem; border-radius: 5px; margin-top: 1rem;">
+            <h5 style="color: #2a5298; margin-bottom: 1rem;">📄 Document Status</h5>
+            
+            {% if program.submitted_documents %}
+            <div style="margin-bottom: 1rem;">
+                <h6 style="color: #2e7d32; margin-bottom: 0.5rem;">✅ Submitted Documents</h6>
+                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                    {% for doc in program.submitted_documents %}
+                    <div style="background: #e8f5e8; padding: 0.5rem; border-radius: 3px; border: 1px solid #c8e6c9; display: flex; align-items: center; gap: 0.5rem;">
+                        <span>{{ doc }}</span>
+                        <button onclick="removeDocument('{{ program.program }}', '{{ doc }}')" 
+                                style="background: #c62828; color: white; border: none; border-radius: 50%; width: 20px; height: 20px; font-size: 12px; cursor: pointer;" 
+                                title="Remove document">×</button>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if program.missing_documents %}
+            <div style="margin-bottom: 1rem;">
+                <h6 style="color: #c62828; margin-bottom: 0.5rem;">❌ Missing Documents</h6>
+                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                    {% for doc in program.missing_documents %}
+                    <div style="background: #ffebee; padding: 0.5rem; border-radius: 3px; border: 1px solid #ffcdd2; display: flex; align-items: center; gap: 0.5rem;">
+                        <span>{{ doc }}</span>
+                        <button onclick="addDocument('{{ program.program }}', '{{ doc }}')" 
+                                style="background: #2e7d32; color: white; border: none; border-radius: 50%; width: 20px; height: 20px; font-size: 12px; cursor: pointer;" 
+                                title="Mark as received">✓</button>
+                        <button onclick="removeMissingDocument('{{ program.program }}', '{{ doc }}')" 
+                                style="background: #c62828; color: white; border: none; border-radius: 50%; width: 20px; height: 20px; font-size: 12px; cursor: pointer;" 
+                                title="Remove from list">×</button>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Add Document Form -->
+            <div style="border-top: 1px solid #eee; padding-top: 1rem;">
+                <h6 style="color: #2a5298; margin-bottom: 0.5rem;">➕ Add Missing Document</h6>
+                <div style="display: flex; gap: 0.5rem;">
+                    <input type="text" 
+                           id="newDoc_{{ program.program.replace(' ', '_') }}" 
+                           placeholder="Enter document name" 
+                           style="flex: 1; padding: 0.5rem; border: 1px solid #ddd; border-radius: 3px; font-size: 0.9rem;">
+                    <button onclick="addMissingDocument('{{ program.program }}')" 
+                            class="btn" 
+                            style="padding: 0.5rem 1rem; font-size: 0.9rem;">Add</button>
+                </div>
+            </div>
+        </div>
+        
+        {% else %}
+        <!-- Ineligible Program Info -->
+        <div style="background: #ffebee; padding: 1rem; border-radius: 5px;">
+            <h5 style="color: #c62828; margin-bottom: 0.5rem;">Reason for Ineligibility</h5>
+            <p style="margin: 0; color: #333;">{{ program.get('ineligible_reason', 'Does not meet program requirements') }}</p>
+        </div>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Notes Section -->
+<div class="card">
+    <h3 style="color: #1e3c72; margin-bottom: 1rem;">📝 Staff Notes</h3>
+    <textarea id="studentNotes" 
+              style="width: 100%; min-height: 100px; padding: 1rem; border: 1px solid #ddd; border-radius: 5px; font-family: inherit; resize: vertical;"
+              placeholder="Add notes about this student's case, communications, special circumstances, etc.">{{ student.notes or '' }}</textarea>
+    <div style="text-align: right; margin-top: 1rem;">
+        <button onclick="updateNotes()" class="btn">💾 Save Notes</button>
+    </div>
+</div>
+
+<script>
+const studentId = '{{ student.student_id }}';
+
+function toggleVerification(program, verified) {
+    const data = {
+        action: 'update_verification',
+        program: program,
+        verified: verified
+    };
+    
+    updateStudent(data, `${program} verification status updated successfully!`);
+}
+
+function addDocument(program, document) {
+    const data = {
+        action: 'add_document',
+        program: program,
+        document: document
+    };
+    
+    updateStudent(data, `Document "${document}" marked as received for ${program}!`);
+}
+
+function removeDocument(program, document) {
+    if (confirm(`Remove "${document}" from submitted documents for ${program}?`)) {
+        const data = {
+            action: 'remove_document',
+            program: program,
+            document: document
+        };
+        
+        updateStudent(data, `Document "${document}" removed from ${program}!`);
+    }
+}
+
+function addMissingDocument(program) {
+    const inputId = `newDoc_${program.replace(' ', '_')}`;
+    const input = document.getElementById(inputId);
+    const document = input.value.trim();
+    
+    if (!document) {
+        alert('Please enter a document name');
+        return;
+    }
+    
+    const data = {
+        action: 'add_missing_document',
+        program: program,
+        document: document
+    };
+    
+    updateStudent(data, `"${document}" added to missing documents for ${program}!`, () => {
+        input.value = '';
+    });
+}
+
+function removeMissingDocument(program, document) {
+    if (confirm(`Remove "${document}" from missing documents list for ${program}?`)) {
+        const data = {
+            action: 'remove_missing_document',
+            program: program,
+            document: document
+        };
+        
+        updateStudent(data, `"${document}" removed from missing documents for ${program}!`);
+    }
+}
+
+function updateNotes() {
+    const notes = document.getElementById('studentNotes').value;
+    const data = {
+        action: 'update_notes',
+        notes: notes
+    };
+    
+    updateStudent(data, 'Student notes updated successfully!');
+}
+
+function updateStudent(data, successMessage, callback) {
+    fetch(`/employee/student/${studentId}/update`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(result => {
+        if (result.status === 'success') {
+            showNotification(successMessage, 'success');
+            if (callback) callback();
+            // Reload page after 1 second to show updates
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
+        } else {
+            showNotification('Error: ' + result.message, 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('An error occurred while updating the record', 'error');
+    });
+}
+
+function showNotification(message, type) {
+    const notification = document.createElement('div');
+    notification.className = `alert alert-${type === 'success' ? 'success' : 'danger'}`;
+    notification.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 1000; max-width: 400px;';
+    notification.innerHTML = `<strong>${type === 'success' ? '✅' : '❌'}</strong> ${message}`;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.remove();
+    }, 3000);
+}
+
+// Auto-save notes on blur
+document.getElementById('studentNotes').addEventListener('blur', function() {
+    const originalNotes = '{{ student.notes or "" }}';
+    if (this.value !== originalNotes) {
+        updateNotes();
+    }
+});
+</script>
+{% endblock %}

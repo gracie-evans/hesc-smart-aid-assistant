@@ -346,12 +346,31 @@
                 <a href="{{ url_for('screener') }}" {% if request.endpoint == 'screener' %}class="active"{% endif %}>Eligibility Screener</a>
                 <a href="{{ url_for('documents') }}" {% if request.endpoint == 'documents' %}class="active"{% endif %}>My Documents</a>
                 <a href="{{ url_for('report') }}" {% if request.endpoint == 'report' %}class="active"{% endif %}>Report</a>
+                
+                {% if session.get('employee_logged_in') %}
+                    <a href="{{ url_for('employee_dashboard') }}" {% if request.endpoint == 'employee_dashboard' %}class="active"{% endif %} style="border-left: 2px solid rgba(255,255,255,0.3); padding-left: 1rem; margin-left: 1rem;">Dashboard</a>
+                    <a href="{{ url_for('employee_logout') }}" class="btn-secondary" style="font-size: 0.9rem; padding: 0.3rem 0.8rem;">Logout ({{ session.get('employee_name', 'Staff') }})</a>
+                {% else %}
+                    <a href="{{ url_for('employee_login') }}" {% if request.endpoint == 'employee_login' %}class="active"{% endif %} style="border-left: 2px solid rgba(255,255,255,0.3); padding-left: 1rem; margin-left: 1rem;">Employee Login</a>
+                {% endif %}
+                
                 <a href="{{ url_for('clear_session') }}" class="btn-secondary" style="font-size: 0.9rem; padding: 0.3rem 0.8rem;">Clear Data</a>
             </nav>
         </div>
     </div>
 
     <div class="container">
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'success' if category == 'success' else 'danger' if category == 'error' else 'info' }}" style="margin-bottom: 1rem;">
+                        <strong>{{ '✅' if category == 'success' else '❌' if category == 'error' else 'ℹ️' }}</strong> {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
         {% block content %}{% endblock %}
     </div>
 

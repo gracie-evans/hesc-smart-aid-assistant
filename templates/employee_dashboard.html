@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+
+{% block title %}Employee Dashboard - HESC Smart Aid Assistant{% endblock %}
+
+{% block content %}
+<div class="text-center mb-3">
+    <h1 style="font-size: 2.5rem; color: #1e3c72; margin-bottom: 0.5rem;">👥 Employee Dashboard</h1>
+    <p class="text-large" style="color: #666;">
+        Welcome, <strong>{{ session.get('employee_name', 'Staff Member') }}</strong> ({{ session.get('employee_role', 'Staff') }})
+    </p>
+    <p style="color: #888; font-size: 0.9rem;">
+        Manage student records, verify eligibility, and track document submissions
+    </p>
+</div>
+
+<!-- Search Section -->
+<div class="card">
+    <h3 style="color: #1e3c72; margin-bottom: 1rem;">🔍 Student Search</h3>
+    <form method="GET" action="{{ url_for('employee_dashboard') }}" style="display: flex; gap: 1rem; align-items: end;">
+        <div class="form-group" style="flex: 1; margin-bottom: 0;">
+            <label for="search">Search by Name, Student ID, or Email</label>
+            <input type="text" 
+                   name="search" 
+                   id="search" 
+                   value="{{ search_query }}" 
+                   placeholder="e.g., Maria Lopez, S001, maria@student.edu"
+                   style="width: 100%;">
+        </div>
+        <button type="submit" class="btn" style="height: fit-content;">Search</button>
+        {% if search_query %}
+        <a href="{{ url_for('employee_dashboard') }}" class="btn btn-secondary" style="height: fit-content;">Clear</a>
+        {% endif %}
+    </form>
+</div>
+
+<!-- Statistics Overview -->
+<div class="card">
+    <h3 style="color: #1e3c72; margin-bottom: 1rem;">📊 Student Overview</h3>
+    <div class="grid grid-3">
+        <div class="text-center" style="padding: 1rem; background: #e3f2fd; border-radius: 10px;">
+            <div style="font-size: 2rem; margin-bottom: 0.5rem;">👥</div>
+            <h4 style="color: #1565c0; margin-bottom: 0.5rem;">{{ students|length }}</h4>
+            <p style="color: #1565c0; margin: 0;">Total Students{% if search_query %} Found{% endif %}</p>
+        </div>
+        <div class="text-center" style="padding: 1rem; background: #e8f5e8; border-radius: 10px;">
+            <div style="font-size: 2rem; margin-bottom: 0.5rem;">✅</div>
+            <h4 style="color: #2e7d32; margin-bottom: 0.5rem;">{{ students|selectattr('status', 'equalto', 'Completed')|list|length }}</h4>
+            <p style="color: #2e7d32; margin: 0;">Completed Records</p>
+        </div>
+        <div class="text-center" style="padding: 1rem; background: #fff3e0; border-radius: 10px;">
+            <div style="font-size: 2rem; margin-bottom: 0.5rem;">⏳</div>
+            <h4 style="color: #f57c00; margin-bottom: 0.5rem;">{{ students|selectattr('status', 'equalto', 'Active')|list|length }}</h4>
+            <p style="color: #f57c00; margin: 0;">Active Records</p>
+        </div>
+    </div>
+</div>
+
+<!-- Student Records -->
+{% if students %}
+<div class="card">
+    <h3 style="color: #1e3c72; margin-bottom: 1rem;">
+        📋 Student Records
+        {% if search_query %}
+        <span style="font-size: 1rem; color: #666; font-weight: normal;">- Search: "{{ search_query }}"</span>
+        {% endif %}
+    </h3>
+    
+    <div class="grid grid-1">
+        {% for student in students %}
+        <div style="border: 1px solid #e9ecef; border-radius: 10px; padding: 1.5rem; margin-bottom: 1rem; background: #fafafa;">
+            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+                <div>
+                    <h4 style="color: #1e3c72; margin-bottom: 0.5rem;">{{ student.name }}</h4>
+                    <p style="color: #666; margin: 0.25rem 0;"><strong>ID:</strong> {{ student.student_id }}</p>
+                    <p style="color: #666; margin: 0.25rem 0;"><strong>Email:</strong> {{ student.get('email', 'N/A') }}</p>
+                    <p style="color: #666; margin: 0.25rem 0;"><strong>Phone:</strong> {{ student.get('phone', 'N/A') }}</p>
+                </div>
+                <div style="text-align: right;">
+                    <span class="status-badge {{ 'status-received' if student.status == 'Completed' else 'status-pending' }}">
+                        {{ student.status }}
+                    </span>
+                    <p style="font-size: 0.8rem; color: #888; margin-top: 0.5rem;">
+                        Updated: {{ student.last_updated[:10] if student.last_updated else 'N/A' }}
+                    </p>
+                </div>
+            </div>
+            
+            <div style="background: white; padding: 1rem; border-radius: 5px; margin-bottom: 1rem;">
+                <h5 style="color: #2a5298; margin-bottom: 0.5rem;">Profile Summary</h5>
+                <div class="grid grid-2">
+                    <div>
+                        <p style="margin: 0.25rem 0;"><strong>Residency:</strong> {{ 'New York' if student.residency == 'NY' else student.residency }}</p>
+                        <p style="margin: 0.25rem 0;"><strong>GPA:</strong> {{ student.gpa }}</p>
+                    </div>
+                    <div>
+                        <p style="margin: 0.25rem 0;"><strong>Income:</strong> ${{ "{:,}".format(student.household_income) }}</p>
+                        <p style="margin: 0.25rem 0;"><strong>Enrollment:</strong> {{ student.enrollment_status }}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="background: white; padding: 1rem; border-radius: 5px; margin-bottom: 1rem;">
+                <h5 style="color: #2a5298; margin-bottom: 0.5rem;">Program Eligibility ({{ student.eligibility_results|length }} programs)</h5>
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                    {% for program in student.eligibility_results %}
+                    <div style="padding: 0.5rem; border-radius: 5px; {% if program.eligible %}background: #e8f5e8; border: 1px solid #c8e6c9;{% else %}background: #ffebee; border: 1px solid #ffcdd2;{% endif %}">
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <span>{% if program.eligible %}✅{% else %}❌{% endif %}</span>
+                            <strong style="{% if program.eligible %}color: #2e7d32;{% else %}color: #c62828;{% endif %}">{{ program.program }}</strong>
+                        </div>
+                        {% if program.eligible %}
+                            <p style="font-size: 0.8rem; margin: 0.25rem 0; color: #555;">
+                                <strong>${{ "{:,}".format(program.award_amount) }}</strong> • 
+                                {% if program.verified %}✅ Verified{% else %}⏳ Pending{% endif %}
+                            </p>
+                            {% if program.missing_documents %}
+                            <p style="font-size: 0.8rem; margin: 0.25rem 0; color: #d32f2f;">
+                                {{ program.missing_documents|length }} missing docs
+                            </p>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            {% if student.notes %}
+            <div style="background: #fff9c4; padding: 1rem; border-radius: 5px; border-left: 4px solid #fbc02d; margin-bottom: 1rem;">
+                <h5 style="color: #f57c00; margin-bottom: 0.5rem;">📝 Notes</h5>
+                <p style="margin: 0; color: #333;">{{ student.notes }}</p>
+            </div>
+            {% endif %}
+            
+            <div style="display: flex; gap: 1rem; justify-content: end; margin-top: 1rem;">
+                <a href="{{ url_for('view_student', student_id=student.student_id) }}" class="btn">
+                    👤 View Details
+                </a>
+                <a href="{{ url_for('generate_student_report', student_id=student.student_id) }}" class="btn btn-secondary">
+                    📋 Generate Report
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% else %}
+<div class="card text-center">
+    <div style="font-size: 3rem; margin-bottom: 1rem;">{% if search_query %}🔍{% else %}👥{% endif %}</div>
+    <h3 style="color: #1e3c72; margin-bottom: 1rem;">
+        {% if search_query %}No Students Found{% else %}No Student Records{% endif %}
+    </h3>
+    <p style="margin-bottom: 1.5rem; color: #666;">
+        {% if search_query %}
+            No students match your search criteria "{{ search_query }}". Try a different search term or clear the search to see all students.
+        {% else %}
+            There are currently no student records in the system.
+        {% endif %}
+    </p>
+    {% if search_query %}
+    <a href="{{ url_for('employee_dashboard') }}" class="btn">View All Students</a>
+    {% endif %}
+</div>
+{% endif %}
+
+<script>
+// Auto-focus search input
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('search');
+    if (!searchInput.value) {
+        searchInput.focus();
+    }
+});
+
+// Real-time search suggestions (optional enhancement)
+document.getElementById('search').addEventListener('input', function(e) {
+    const query = e.target.value;
+    if (query.length >= 2) {
+        // You could implement AJAX search suggestions here
+        // For now, we'll just show a visual indicator
+        e.target.style.borderColor = '#2a5298';
+    } else {
+        e.target.style.borderColor = '#e9ecef';
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,242 @@
+{% extends "base.html" %}
+
+{% block title %}Report for {{ student.name }} - HESC Smart Aid Assistant{% endblock %}
+
+{% block content %}
+<div class="text-center mb-3">
+    <h1 style="font-size: 2.5rem; color: #1e3c72; margin-bottom: 0.5rem;">📋 Student Financial Aid Report</h1>
+    <p class="text-large" style="color: #666;">
+        Comprehensive eligibility and verification report for <strong>{{ student.name }}</strong>
+    </p>
+    <p style="color: #888; font-size: 0.9rem;">
+        Generated on {{ moment().format('MMMM DD, YYYY') }} by {{ session.get('employee_name', 'HESC Staff') }}
+    </p>
+</div>
+
+<!-- Print Controls -->
+<div style="margin-bottom: 2rem; text-align: center;" class="no-print">
+    <a href="{{ url_for('view_student', student_id=student.student_id) }}" class="btn btn-secondary">← Back to Student Details</a>
+    <button onclick="window.print()" class="btn">🖨️ Print Report</button>
+    <a href="{{ url_for('employee_dashboard') }}" class="btn btn-secondary">Dashboard</a>
+</div>
+
+<!-- Report Header -->
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <div>
+            <h2 style="color: #1e3c72; margin: 0;">{{ student.name }}</h2>
+            <p style="margin: 0.5rem 0; color: #666;">Student ID: {{ student.student_id }}</p>
+        </div>
+        <div style="text-align: right;">
+            <span class="status-badge {{ 'status-received' if student.status == 'Completed' else 'status-pending' }}" style="font-size: 1rem; padding: 0.5rem 1rem;">
+                {{ student.status }}
+            </span>
+        </div>
+    </div>
+    
+    <div class="grid grid-2">
+        <div>
+            <h4 style="color: #2a5298; margin-bottom: 0.5rem;">Contact Information</h4>
+            <p style="margin: 0.25rem 0;"><strong>Email:</strong> {{ student.get('email', 'N/A') }}</p>
+            <p style="margin: 0.25rem 0;"><strong>Phone:</strong> {{ student.get('phone', 'N/A') }}</p>
+            <p style="margin: 0.25rem 0;"><strong>Last Updated:</strong> {{ student.last_updated[:10] if student.last_updated else 'N/A' }}</p>
+        </div>
+        <div>
+            <h4 style="color: #2a5298; margin-bottom: 0.5rem;">Academic Profile</h4>
+            <p style="margin: 0.25rem 0;"><strong>Residency:</strong> {{ 'New York State' if student.residency == 'NY' else student.residency }}</p>
+            <p style="margin: 0.25rem 0;"><strong>GPA:</strong> {{ student.gpa }} / 4.0</p>
+            <p style="margin: 0.25rem 0;"><strong>Household Income:</strong> ${{ "{:,}".format(student.household_income) }}</p>
+            <p style="margin: 0.25rem 0;"><strong>Enrollment:</strong> {{ student.enrollment_status }}</p>
+        </div>
+    </div>
+</div>
+
+<!-- Summary Overview -->
+<div class="card">
+    <h3 style="color: #1e3c72; margin-bottom: 1rem;">📊 Financial Aid Summary</h3>
+    <div class="grid grid-3">
+        <div class="text-center" style="padding: 1rem; background: #e8f5e8; border-radius: 10px;">
+            <div style="font-size: 2rem; margin-bottom: 0.5rem;">✅</div>
+            <h4 style="color: #2e7d32; margin-bottom: 0.5rem;">{{ eligible_programs|length }}</h4>
+            <p style="color: #2e7d32; margin: 0;">Eligible Programs</p>
+        </div>
+        <div class="text-center" style="padding: 1rem; background: #e3f2fd; border-radius: 10px;">
+            <div style="font-size: 2rem; margin-bottom: 0.5rem;">💰</div>
+            <h4 style="color: #1565c0; margin-bottom: 0.5rem;">${{ "{:,}".format(total_eligible_amount) }}</h4>
+            <p style="color: #1565c0; margin: 0;">Total Potential Aid</p>
+        </div>
+        <div class="text-center" style="padding: 1rem; background: #ffebee; border-radius: 10px;">
+            <div style="font-size: 2rem; margin-bottom: 0.5rem;">❌</div>
+            <h4 style="color: #c62828; margin-bottom: 0.5rem;">{{ ineligible_programs|length }}</h4>
+            <p style="color: #c62828; margin: 0;">Ineligible Programs</p>
+        </div>
+    </div>
+</div>
+
+<div class="grid grid-2">
+    <!-- Eligible Programs -->
+    {% if eligible_programs %}
+    <div class="card">
+        <h3 style="color: #2e7d32; margin-bottom: 1rem;">✅ Eligible Programs</h3>
+        
+        {% for program in eligible_programs %}
+        <div style="border: 2px solid #c8e6c9; border-radius: 10px; padding: 1.5rem; margin-bottom: 1rem; background: #f1f8e9;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <h4 style="color: #2e7d32; margin: 0;">{{ program.program }}</h4>
+                <span class="status-badge {{ 'status-received' if program.verified else 'status-pending' }}">
+                    {% if program.verified %}Verified{% else %}Pending{% endif %}
+                </span>
+            </div>
+            
+            <div style="margin-bottom: 1rem;">
+                <p style="margin: 0.25rem 0;"><strong>Award Amount:</strong> <span style="color: #2e7d32; font-weight: bold; font-size: 1.1rem;">${{ "{:,}".format(program.award_amount) }}</span></p>
+                <p style="margin: 0.25rem 0;"><strong>Deadline:</strong> {{ program.deadline }}</p>
+            </div>
+            
+            {% if program.submitted_documents %}
+            <div style="margin-bottom: 1rem;">
+                <h5 style="color: #2e7d32; margin-bottom: 0.5rem;">✅ Submitted Documents ({{ program.submitted_documents|length }})</h5>
+                <ul style="margin: 0; padding-left: 1.5rem; color: #333;">
+                    {% for doc in program.submitted_documents %}
+                    <li>{{ doc }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+            
+            {% if program.missing_documents %}
+            <div style="background: #fff3cd; padding: 0.75rem; border-radius: 5px; border-left: 4px solid #ffc107;">
+                <h5 style="color: #856404; margin-bottom: 0.5rem;">⚠️ Missing Documents ({{ program.missing_documents|length }})</h5>
+                <ul style="margin: 0; padding-left: 1.5rem; color: #856404;">
+                    {% for doc in program.missing_documents %}
+                    <li>{{ doc }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+        
+        <div style="background: #e8f5e8; padding: 1rem; border-radius: 5px; text-align: center; margin-top: 1rem;">
+            <h4 style="color: #2e7d32; margin: 0;">Total Eligible Aid: ${{ "{:,}".format(total_eligible_amount) }}</h4>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Ineligible Programs -->
+    {% if ineligible_programs %}
+    <div class="card">
+        <h3 style="color: #c62828; margin-bottom: 1rem;">❌ Ineligible Programs</h3>
+        
+        {% for program in ineligible_programs %}
+        <div style="border: 2px solid #ffcdd2; border-radius: 10px; padding: 1.5rem; margin-bottom: 1rem; background: #fafafa;">
+            <h4 style="color: #c62828; margin-bottom: 1rem;">{{ program.program }}</h4>
+            
+            <div style="margin-bottom: 1rem;">
+                <p style="margin: 0.25rem 0;"><strong>Potential Award:</strong> ${{ "{:,}".format(program.award_amount) }}</p>
+                <p style="margin: 0.25rem 0;"><strong>Deadline:</strong> {{ program.deadline }}</p>
+            </div>
+            
+            <div style="background: #ffebee; padding: 0.75rem; border-radius: 5px; border-left: 4px solid #f44336;">
+                <h5 style="color: #c62828; margin-bottom: 0.5rem;">Reason for Ineligibility</h5>
+                <p style="margin: 0; color: #333;">{{ program.get('ineligible_reason', 'Does not meet program requirements') }}</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+
+<!-- Notes Section -->
+{% if student.notes %}
+<div class="card">
+    <h3 style="color: #1e3c72; margin-bottom: 1rem;">📝 Staff Notes</h3>
+    <div style="background: #fff9c4; padding: 1.5rem; border-radius: 5px; border-left: 4px solid #fbc02d;">
+        <p style="margin: 0; line-height: 1.6; white-space: pre-wrap;">{{ student.notes }}</p>
+    </div>
+</div>
+{% endif %}
+
+<!-- Action Items -->
+<div class="card">
+    <h3 style="color: #1e3c72; margin-bottom: 1rem;">🎯 Next Steps & Recommendations</h3>
+    
+    {% set total_missing = eligible_programs|sum(attribute='missing_documents')|length %}
+    {% set unverified_count = eligible_programs|rejectattr('verified')|list|length %}
+    
+    <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 5px;">
+        <h4 style="color: #2a5298; margin-bottom: 1rem;">Immediate Actions Required</h4>
+        
+        {% if total_missing > 0 %}
+        <div style="margin-bottom: 1rem;">
+            <p style="color: #c62828; font-weight: bold; margin-bottom: 0.5rem;">📄 Document Collection Priority</p>
+            <p style="margin: 0; color: #333;">Student needs to submit {{ total_missing }} missing document(s) across {{ eligible_programs|rejectattr('missing_documents', 'equalto', [])|list|length }} program(s). Follow up on document submission deadlines.</p>
+        </div>
+        {% endif %}
+        
+        {% if unverified_count > 0 %}
+        <div style="margin-bottom: 1rem;">
+            <p style="color: #f57c00; font-weight: bold; margin-bottom: 0.5rem;">✅ Verification Pending</p>
+            <p style="margin: 0; color: #333;">{{ unverified_count }} eligible program(s) require staff verification. Review submitted documents and update verification status.</p>
+        </div>
+        {% endif %}
+        
+        {% if total_missing == 0 and unverified_count == 0 and eligible_programs %}
+        <div style="margin-bottom: 1rem;">
+            <p style="color: #2e7d32; font-weight: bold; margin-bottom: 0.5rem;">🎉 All Requirements Complete</p>
+            <p style="margin: 0; color: #333;">Student has completed all requirements for eligible programs. Aid processing can proceed.</p>
+        </div>
+        {% endif %}
+        
+        {% if not eligible_programs %}
+        <div style="margin-bottom: 1rem;">
+            <p style="color: #c62828; font-weight: bold; margin-bottom: 0.5rem;">📞 Alternative Options Needed</p>
+            <p style="margin: 0; color: #333;">Student is not eligible for any current programs. Consider private scholarships, work-study, or appeals process if circumstances warrant.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Report Footer -->
+<div class="card" style="text-align: center; color: #666; font-size: 0.9rem;">
+    <p style="margin: 0;">
+        This report was generated by the HESC Smart Aid Assistant on {{ moment().format('MMMM DD, YYYY') }} at {{ moment().format('h:mm A') }}<br>
+        Staff Member: {{ session.get('employee_name', 'HESC Staff') }} ({{ session.get('employee_role', 'Staff') }})<br>
+        For questions about this report, contact the HESC Financial Aid Office.
+    </p>
+</div>
+
+<style>
+/* Print styles */
+@media print {
+    .no-print { display: none !important; }
+    .card { break-inside: avoid; }
+    body { font-size: 12px; }
+    .grid { display: block; }
+    .grid > div { margin-bottom: 1rem; }
+}
+</style>
+
+<script>
+// Set current date for display
+document.addEventListener('DOMContentLoaded', function() {
+    // Replace moment() with actual date since moment.js isn't included
+    const now = new Date();
+    const dateStr = now.toLocaleDateString('en-US', { 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+    });
+    const timeStr = now.toLocaleTimeString('en-US', { 
+        hour: 'numeric', 
+        minute: '2-digit',
+        hour12: true
+    });
+    
+    // Update date/time placeholders if any exist
+    document.body.innerHTML = document.body.innerHTML
+        .replace(/{{ moment\(\)\.format\('MMMM DD, YYYY'\) }}/g, dateStr)
+        .replace(/{{ moment\(\)\.format\('h:mm A'\) }}/g, timeStr);
+});
+</script>
+{% endblock %}

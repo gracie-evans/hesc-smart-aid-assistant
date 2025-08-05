@@ -1,0 +1,225 @@
+[
+  {
+    "student_id": "S001",
+    "name": "Maria Lopez",
+    "residency": "NY",
+    "gpa": 3.2,
+    "household_income": 60000,
+    "enrollment_status": "Full-time",
+    "email": "maria.lopez@student.edu",
+    "phone": "(555) 123-4567",
+    "eligibility_results": [
+      {
+        "program": "TAP",
+        "eligible": true,
+        "verified": false,
+        "award_amount": 5165,
+        "deadline": "May 1",
+        "missing_documents": ["Proof of residency", "High School Transcript"],
+        "submitted_documents": ["FAFSA", "Social Security Card"]
+      },
+      {
+        "program": "Pell Grant",
+        "eligible": true,
+        "verified": true,
+        "award_amount": 6895,
+        "deadline": "June 30",
+        "missing_documents": [],
+        "submitted_documents": ["FAFSA", "Social Security Card", "Driver's License", "Tax Return"]
+      },
+      {
+        "program": "Excelsior Scholarship",
+        "eligible": false,
+        "verified": false,
+        "award_amount": 0,
+        "deadline": "July 31",
+        "missing_documents": [],
+        "submitted_documents": [],
+        "ineligible_reason": "GPA requirement not met (requires 3.0)"
+      }
+    ],
+    "notes": "Student needs to submit proof of residency before TAP can be approved. Called on 8/1/2025 - will submit documents by 8/15.",
+    "last_updated": "2025-08-04T10:30:00Z",
+    "status": "Active"
+  },
+  {
+    "student_id": "S002",
+    "name": "James Chen",
+    "residency": "NY",
+    "gpa": 3.8,
+    "household_income": 45000,
+    "enrollment_status": "Full-time",
+    "email": "james.chen@student.edu",
+    "phone": "(555) 987-6543",
+    "eligibility_results": [
+      {
+        "program": "TAP",
+        "eligible": true,
+        "verified": true,
+        "award_amount": 5165,
+        "deadline": "May 1",
+        "missing_documents": [],
+        "submitted_documents": ["FAFSA", "NY State Tax Return", "Social Security Card", "High School Transcript"]
+      },
+      {
+        "program": "Pell Grant",
+        "eligible": true,
+        "verified": true,
+        "award_amount": 6895,
+        "deadline": "June 30",
+        "missing_documents": [],
+        "submitted_documents": ["FAFSA", "Social Security Card", "Driver's License", "Tax Return"]
+      },
+      {
+        "program": "Excelsior Scholarship",
+        "eligible": true,
+        "verified": false,
+        "award_amount": 5500,
+        "deadline": "July 31",
+        "missing_documents": ["College Transcript"],
+        "submitted_documents": ["FAFSA", "TAP Application", "NY Residency Form"]
+      },
+      {
+        "program": "SEOG",
+        "eligible": true,
+        "verified": true,
+        "award_amount": 4000,
+        "deadline": "March 15",
+        "missing_documents": [],
+        "submitted_documents": ["FAFSA", "Financial Aid Transcript", "Enrollment Verification"]
+      }
+    ],
+    "notes": "Excellent student with high GPA. All major programs verified. Just waiting on college transcript for Excelsior.",
+    "last_updated": "2025-08-03T14:15:00Z",
+    "status": "Active"
+  },
+  {
+    "student_id": "S003",
+    "name": "Sarah Johnson",
+    "residency": "Other",
+    "gpa": 2.8,
+    "household_income": 85000,
+    "enrollment_status": "Part-time",
+    "email": "sarah.johnson@student.edu",
+    "phone": "(555) 456-7890",
+    "eligibility_results": [
+      {
+        "program": "Pell Grant",
+        "eligible": false,
+        "verified": false,
+        "award_amount": 0,
+        "deadline": "June 30",
+        "missing_documents": [],
+        "submitted_documents": [],
+        "ineligible_reason": "Income too high (maximum $60,000)"
+      },
+      {
+        "program": "TAP",
+        "eligible": false,
+        "verified": false,
+        "award_amount": 0,
+        "deadline": "May 1",
+        "missing_documents": [],
+        "submitted_documents": [],
+        "ineligible_reason": "Residency requirement not met (requires NY)"
+      }
+    ],
+    "notes": "Out-of-state student with limited aid options. Advised to look into private scholarships and work-study programs.",
+    "last_updated": "2025-08-02T09:45:00Z",
+    "status": "Active"
+  },
+  {
+    "student_id": "S004",
+    "name": "David Rodriguez",
+    "residency": "NY",
+    "gpa": 3.5,
+    "household_income": 70000,
+    "enrollment_status": "Full-time",
+    "email": "david.rodriguez@student.edu",
+    "phone": "(555) 321-0987",
+    "eligibility_results": [
+      {
+        "program": "TAP",
+        "eligible": true,
+        "verified": false,
+        "award_amount": 5165,
+        "deadline": "May 1",
+        "missing_documents": ["NY State Tax Return"],
+        "submitted_documents": ["FAFSA", "Social Security Card", "High School Transcript"]
+      },
+      {
+        "program": "Pell Grant",
+        "eligible": false,
+        "verified": false,
+        "award_amount": 0,
+        "deadline": "June 30",
+        "missing_documents": [],
+        "submitted_documents": [],
+        "ineligible_reason": "Income too high (maximum $60,000)"
+      },
+      {
+        "program": "Enhanced Tuition Award",
+        "eligible": true,
+        "verified": false,
+        "award_amount": 6000,
+        "deadline": "June 15",
+        "missing_documents": ["Academic Transcript", "Enrollment Verification"],
+        "submitted_documents": ["FAFSA", "TAP Application"]
+      }
+    ],
+    "notes": "Good candidate for state programs. Income slightly too high for Pell but qualifies for Enhanced Tuition Award.",
+    "last_updated": "2025-08-04T11:20:00Z",
+    "status": "Active"
+  },
+  {
+    "student_id": "S005",
+    "name": "Emily Wang",
+    "residency": "NY",
+    "gpa": 3.9,
+    "household_income": 35000,
+    "enrollment_status": "Full-time",
+    "email": "emily.wang@student.edu",
+    "phone": "(555) 654-3210",
+    "eligibility_results": [
+      {
+        "program": "TAP",
+        "eligible": true,
+        "verified": true,
+        "award_amount": 5165,
+        "deadline": "May 1",
+        "missing_documents": [],
+        "submitted_documents": ["FAFSA", "NY State Tax Return", "Social Security Card", "High School Transcript"]
+      },
+      {
+        "program": "Pell Grant",
+        "eligible": true,
+        "verified": true,
+        "award_amount": 6895,
+        "deadline": "June 30",
+        "missing_documents": [],
+        "submitted_documents": ["FAFSA", "Social Security Card", "Driver's License", "Tax Return"]
+      },
+      {
+        "program": "Excelsior Scholarship",
+        "eligible": true,
+        "verified": true,
+        "award_amount": 5500,
+        "deadline": "July 31",
+        "missing_documents": [],
+        "submitted_documents": ["FAFSA", "TAP Application", "NY Residency Form", "College Transcript"]
+      },
+      {
+        "program": "SEOG",
+        "eligible": true,
+        "verified": true,
+        "award_amount": 4000,
+        "deadline": "March 15",
+        "missing_documents": [],
+        "submitted_documents": ["FAFSA", "Financial Aid Transcript", "Enrollment Verification"]
+      }
+    ],
+    "notes": "Outstanding student - all programs verified and approved. Total aid package: $21,560. No action needed.",
+    "last_updated": "2025-08-01T16:30:00Z",
+    "status": "Completed"
+  }
+]
