@@ -27,10 +27,27 @@
             border-radius: 0 0 12px 12px;
         }
 
+        .header.employee-portal {
+            background: linear-gradient(135deg, #2c5530 0%, #3e7b3e 100%);
+            border-bottom: 3px solid #4caf50;
+        }
+
         .header-content {
             max-width: 1200px;
             margin: 0 auto;
             padding: 0 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-bottom {
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -43,11 +60,6 @@
             align-items: center;
         }
 
-        .logo::before {
-            content: "🎓";
-            margin-right: 10px;
-            font-size: 2rem;
-        }
 
         .nav {
             display: flex;
@@ -129,6 +141,105 @@
 
         .nav-mobile a:last-child {
             border-bottom: none;
+        }
+
+        /* Student Authentication Section */
+        .student-auth {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            align-items: flex-end;
+        }
+
+        .student-auth-buttons {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .employee-login-link {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: color 0.3s ease;
+            margin-top: 0.25rem;
+        }
+
+        .employee-login-link:hover {
+            color: rgba(255, 255, 255, 1);
+            text-decoration: underline;
+        }
+
+        .portal-label {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .student-auth-btn {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            white-space: nowrap;
+        }
+
+        .student-auth-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-1px);
+        }
+
+        .student-auth-btn.primary {
+            background: rgba(255, 255, 255, 0.9);
+            color: #1e3c72;
+            border-color: rgba(255, 255, 255, 0.9);
+        }
+
+        .student-auth-btn.primary:hover {
+            background: white;
+            border-color: white;
+        }
+
+        .student-welcome {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.85rem;
+            text-align: right;
+        }
+
+        .student-welcome-text {
+            color: rgba(255, 255, 255, 0.95);
+            font-weight: 500;
+        }
+
+        .student-logout-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .student-logout-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.4);
         }
 
         .container {
@@ -380,6 +491,16 @@
         @media (max-width: 768px) {
             .header-content {
                 position: relative;
+                gap: 0.75rem;
+            }
+
+            .header-top {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .header-bottom {
+                position: relative;
             }
 
             .nav {
@@ -392,6 +513,19 @@
 
             .nav-mobile.active {
                 display: block;
+            }
+
+            .student-auth {
+                gap: 0.4rem;
+            }
+
+            .student-auth-btn {
+                font-size: 0.75rem;
+                padding: 0.35rem 0.8rem;
+            }
+
+            .employee-login-link {
+                font-size: 0.7rem;
             }
 
             .container {
@@ -616,65 +750,95 @@
     </style>
 </head>
 <body>
-    <div class="header">
+    <div class="header {% if session.get('employee_logged_in') %}employee-portal{% endif %}">
         <div class="header-content">
-            <div class="logo">HESC Smart Aid Assistant</div>
+            <!-- Top Row: Logo and Authentication -->
+            <div class="header-top">
+                <div>
+                    {% if session.get('employee_logged_in') %}
+                        <div class="portal-label">Employee Portal</div>
+                    {% endif %}
+                    <div class="logo">HESC Smart Aid Assistant</div>
+                </div>
+                
+                <!-- Authentication (Top Right) -->
+                <div class="student-auth">
+                    {% if session.get('employee_logged_in') %}
+                        <!-- Employee welcome message -->
+                        <div class="student-welcome">
+                            <span class="student-welcome-text">{{ session.get('employee_name', 'Staff') }} ({{ session.get('employee_role', 'Employee') }})</span>
+                        </div>
+                        <a href="{{ url_for('employee_logout') }}" class="employee-login-link">Logout</a>
+                    {% elif session.get('student_logged_in') %}
+                        <!-- Student welcome message -->
+                        <div class="student-welcome">
+                            <span class="student-welcome-text">Welcome, {{ session.get('student_first_name', 'Student') }}!</span>
+                            <a href="{{ url_for('student_logout') }}" class="student-logout-btn">Logout</a>
+                        </div>
+                        <a href="{{ url_for('employee_login') }}" class="employee-login-link">Employee Login</a>
+                    {% else %}
+                        <!-- Login/Signup buttons -->
+                        <div class="student-auth-buttons">
+                            <button onclick="openLoginModal()" class="student-auth-btn">Login</button>
+                            <button onclick="openSignupModal()" class="student-auth-btn primary">Sign Up</button>
+                        </div>
+                        <a href="{{ url_for('employee_login') }}" class="employee-login-link">Employee Login</a>
+                    {% endif %}
+                </div>
+            </div>
             
-            <!-- Desktop Navigation -->
-            <nav class="nav">
+            <!-- Bottom Row: Main Navigation -->
+            <div class="header-bottom">
+                <!-- Desktop Navigation -->
+                <nav class="nav">
+                    {% if session.get('employee_logged_in') %}
+                        <!-- Employee Navigation -->
+                        <a href="{{ url_for('employee_dashboard') }}" {% if request.endpoint == 'employee_dashboard' or request.endpoint == 'view_student' or request.endpoint == 'generate_student_report' %}class="active"{% endif %}>Student Eligibility Management</a>
+                    {% else %}
+                        <!-- Student Navigation -->
+                        <a href="{{ url_for('home') }}" {% if request.endpoint == 'home' %}class="active"{% endif %}>Home</a>
+                        <a href="{{ url_for('screener') }}" {% if request.endpoint == 'screener' %}class="active"{% endif %}>Eligibility Screener</a>
+                        <a href="{{ url_for('documents') }}" {% if request.endpoint == 'documents' %}class="active"{% endif %}>My Documents</a>
+                        <a href="{{ url_for('report') }}" {% if request.endpoint == 'report' %}class="active"{% endif %}>Report</a>
+                    {% endif %}
+                </nav>
+                
+                <!-- Mobile Navigation Toggle -->
+                <button class="nav-toggle" onclick="toggleMobileNav()">☰</button>
+            </div>
+        </div>
+        
+        <!-- Mobile Navigation Menu -->
+        <nav class="nav-mobile" id="mobileNav">
+            {% if session.get('employee_logged_in') %}
+                <!-- Employee Mobile Navigation -->
+                <div style="padding: 1rem 20px; border-bottom: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.9); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;">
+                    Employee Portal
+                </div>
+                <a href="{{ url_for('employee_dashboard') }}" {% if request.endpoint == 'employee_dashboard' or request.endpoint == 'view_student' or request.endpoint == 'generate_student_report' %}class="active"{% endif %}>Student Eligibility Management</a>
+                <div style="padding: 1rem 20px; border-top: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.9);">
+                    {{ session.get('employee_name', 'Staff') }} ({{ session.get('employee_role', 'Employee') }})
+                </div>
+                <a href="{{ url_for('employee_logout') }}">Logout</a>
+            {% else %}
+                <!-- Student Mobile Navigation -->
                 <a href="{{ url_for('home') }}" {% if request.endpoint == 'home' %}class="active"{% endif %}>Home</a>
                 <a href="{{ url_for('screener') }}" {% if request.endpoint == 'screener' %}class="active"{% endif %}>Eligibility Screener</a>
                 <a href="{{ url_for('documents') }}" {% if request.endpoint == 'documents' %}class="active"{% endif %}>My Documents</a>
                 <a href="{{ url_for('report') }}" {% if request.endpoint == 'report' %}class="active"{% endif %}>Report</a>
                 
-                {% if session.get('employee_logged_in') %}
-                    <a href="{{ url_for('employee_dashboard') }}" {% if request.endpoint == 'employee_dashboard' %}class="active"{% endif %} style="border-left: 2px solid rgba(255,255,255,0.3); padding-left: 1rem; margin-left: 1rem;">Dashboard</a>
-                    <a href="{{ url_for('employee_logout') }}" class="btn-secondary" style="font-size: 0.85rem; padding: 0.5rem 1rem;">Logout ({{ session.get('employee_name', 'Staff') }})</a>
-                {% else %}
-                    <a href="{{ url_for('employee_login') }}" {% if request.endpoint == 'employee_login' %}class="active"{% endif %} style="border-left: 2px solid rgba(255,255,255,0.3); padding-left: 1rem; margin-left: 1rem;">Employee Login</a>
-                {% endif %}
-                
-                <!-- Student Authentication -->
-                {% if session.get('student_logged_in') %}
-                    <div style="border-left: 2px solid rgba(255,255,255,0.3); padding-left: 1rem; margin-left: 1rem; display: flex; align-items: center; gap: 1rem;">
-                        <span style="color: rgba(255,255,255,0.9); font-size: 0.9rem;">Welcome, {{ session.get('student_first_name', 'Student') }}!</span>
-                        <a href="{{ url_for('student_logout') }}" class="btn-secondary" style="font-size: 0.8rem; padding: 0.4rem 0.8rem;">Logout</a>
-                    </div>
-                {% else %}
-                    <div style="border-left: 2px solid rgba(255,255,255,0.3); padding-left: 1rem; margin-left: 1rem; display: flex; gap: 0.5rem;">
-                        <button onclick="openLoginModal()" class="btn-secondary" style="font-size: 0.85rem; padding: 0.5rem 1rem;">Login</button>
-                        <button onclick="openSignupModal()" class="btn" style="font-size: 0.85rem; padding: 0.5rem 1rem;">Sign Up</button>
-                    </div>
-                {% endif %}
-            </nav>
-            
-            <!-- Mobile Navigation Toggle -->
-            <button class="nav-toggle" onclick="toggleMobileNav()">☰</button>
-        </div>
-        
-        <!-- Mobile Navigation Menu -->
-        <nav class="nav-mobile" id="mobileNav">
-            <a href="{{ url_for('home') }}" {% if request.endpoint == 'home' %}class="active"{% endif %}>Home</a>
-            <a href="{{ url_for('screener') }}" {% if request.endpoint == 'screener' %}class="active"{% endif %}>Eligibility Screener</a>
-            <a href="{{ url_for('documents') }}" {% if request.endpoint == 'documents' %}class="active"{% endif %}>My Documents</a>
-            <a href="{{ url_for('report') }}" {% if request.endpoint == 'report' %}class="active"{% endif %}>Report</a>
-            
-            {% if session.get('employee_logged_in') %}
-                <a href="{{ url_for('employee_dashboard') }}" {% if request.endpoint == 'employee_dashboard' %}class="active"{% endif %}>Dashboard</a>
-                <a href="{{ url_for('employee_logout') }}">Logout ({{ session.get('employee_name', 'Staff') }})</a>
-            {% else %}
                 <a href="{{ url_for('employee_login') }}" {% if request.endpoint == 'employee_login' %}class="active"{% endif %}>Employee Login</a>
-            {% endif %}
-            
-            <!-- Student Authentication (Mobile) -->
-            {% if session.get('student_logged_in') %}
-                <div style="padding: 1rem 20px; border-top: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.9);">
-                    Welcome, {{ session.get('student_first_name', 'Student') }}!
-                </div>
-                <a href="{{ url_for('student_logout') }}">Student Logout</a>
-            {% else %}
-                <a href="#" onclick="openLoginModal(); document.getElementById('mobileNav').classList.remove('active');">Student Login</a>
-                <a href="#" onclick="openSignupModal(); document.getElementById('mobileNav').classList.remove('active');">Student Sign Up</a>
+                
+                <!-- Student Authentication (Mobile) -->
+                {% if session.get('student_logged_in') %}
+                    <div style="padding: 1rem 20px; border-top: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.9);">
+                        Welcome, {{ session.get('student_first_name', 'Student') }}!
+                    </div>
+                    <a href="{{ url_for('student_logout') }}">Student Logout</a>
+                {% else %}
+                    <a href="#" onclick="openLoginModal(); document.getElementById('mobileNav').classList.remove('active');">Student Login</a>
+                    <a href="#" onclick="openSignupModal(); document.getElementById('mobileNav').classList.remove('active');">Student Sign Up</a>
+                {% endif %}
             {% endif %}
         </nav>
     </div>

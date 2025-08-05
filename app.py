@@ -7,7 +7,7 @@ import difflib
 from functools import wraps
 
 app = Flask(__name__)
-app.secret_key = 'hesc_smart_aid_2024'  # For session management
+app.secret_key = os.environ.get('SECRET_KEY', 'hesc_smart_aid_2024_production_key_change_me')  # For session management
 
 # Load program eligibility rules
 csv_path = os.path.join("data", "aid_programs.csv")
@@ -443,10 +443,16 @@ def search_students():
     return jsonify(results[:10])  # Limit to 10 results
 
 if __name__ == "__main__":
-    print("🚀 Starting HESC Smart Aid Assistant...")
-    print("📍 Application will be available at:")
-    print("   • http://127.0.0.1:5000")
-    print("   • http://localhost:5000")
-    print("💡 Press Ctrl+C to stop the server")
-    print("-" * 50)
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    # Get port from environment variable for production deployment
+    port = int(os.environ.get('PORT', 5000))
+    debug_mode = os.environ.get('FLASK_ENV') != 'production'
+    
+    if debug_mode:
+        print("🚀 Starting HESC Smart Aid Assistant...")
+        print("📍 Application will be available at:")
+        print(f"   • http://127.0.0.1:{port}")
+        print(f"   • http://localhost:{port}")
+        print("💡 Press Ctrl+C to stop the server")
+        print("-" * 50)
+    
+    app.run(host='0.0.0.0', port=port, debug=debug_mode)
