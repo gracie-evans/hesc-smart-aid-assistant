@@ -15,8 +15,14 @@
         "verified": false,
         "award_amount": 5165,
         "deadline": "May 1",
-        "missing_documents": ["Proof of residency", "High School Transcript"],
-        "submitted_documents": ["FAFSA", "Social Security Card"]
+        "missing_documents": [
+          "Proof of residency",
+          "High School Transcript"
+        ],
+        "submitted_documents": [
+          "FAFSA",
+          "Social Security Card"
+        ]
       },
       {
         "program": "Pell Grant",
@@ -25,7 +31,12 @@
         "award_amount": 6895,
         "deadline": "June 30",
         "missing_documents": [],
-        "submitted_documents": ["FAFSA", "Social Security Card", "Driver's License", "Tax Return"]
+        "submitted_documents": [
+          "FAFSA",
+          "Social Security Card",
+          "Driver's License",
+          "Tax Return"
+        ]
       },
       {
         "program": "Excelsior Scholarship",
@@ -39,7 +50,7 @@
       }
     ],
     "notes": "Student needs to submit proof of residency before TAP can be approved. Called on 8/1/2025 - will submit documents by 8/15.",
-    "last_updated": "2025-08-04T10:30:00Z",
+    "last_updated": "2025-08-04T20:55:26.860434",
     "status": "Active"
   },
   {
@@ -59,7 +70,12 @@
         "award_amount": 5165,
         "deadline": "May 1",
         "missing_documents": [],
-        "submitted_documents": ["FAFSA", "NY State Tax Return", "Social Security Card", "High School Transcript"]
+        "submitted_documents": [
+          "FAFSA",
+          "NY State Tax Return",
+          "Social Security Card",
+          "High School Transcript"
+        ]
       },
       {
         "program": "Pell Grant",
@@ -68,7 +84,12 @@
         "award_amount": 6895,
         "deadline": "June 30",
         "missing_documents": [],
-        "submitted_documents": ["FAFSA", "Social Security Card", "Driver's License", "Tax Return"]
+        "submitted_documents": [
+          "FAFSA",
+          "Social Security Card",
+          "Driver's License",
+          "Tax Return"
+        ]
       },
       {
         "program": "Excelsior Scholarship",
@@ -76,8 +97,14 @@
         "verified": false,
         "award_amount": 5500,
         "deadline": "July 31",
-        "missing_documents": ["College Transcript"],
-        "submitted_documents": ["FAFSA", "TAP Application", "NY Residency Form"]
+        "missing_documents": [
+          "College Transcript"
+        ],
+        "submitted_documents": [
+          "FAFSA",
+          "TAP Application",
+          "NY Residency Form"
+        ]
       },
       {
         "program": "SEOG",
@@ -86,7 +113,11 @@
         "award_amount": 4000,
         "deadline": "March 15",
         "missing_documents": [],
-        "submitted_documents": ["FAFSA", "Financial Aid Transcript", "Enrollment Verification"]
+        "submitted_documents": [
+          "FAFSA",
+          "Financial Aid Transcript",
+          "Enrollment Verification"
+        ]
       }
     ],
     "notes": "Excellent student with high GPA. All major programs verified. Just waiting on college transcript for Excelsior.",
@@ -144,8 +175,14 @@
         "verified": false,
         "award_amount": 5165,
         "deadline": "May 1",
-        "missing_documents": ["NY State Tax Return"],
-        "submitted_documents": ["FAFSA", "Social Security Card", "High School Transcript"]
+        "missing_documents": [
+          "NY State Tax Return"
+        ],
+        "submitted_documents": [
+          "FAFSA",
+          "Social Security Card",
+          "High School Transcript"
+        ]
       },
       {
         "program": "Pell Grant",
@@ -163,8 +200,14 @@
         "verified": false,
         "award_amount": 6000,
         "deadline": "June 15",
-        "missing_documents": ["Academic Transcript", "Enrollment Verification"],
-        "submitted_documents": ["FAFSA", "TAP Application"]
+        "missing_documents": [
+          "Academic Transcript",
+          "Enrollment Verification"
+        ],
+        "submitted_documents": [
+          "FAFSA",
+          "TAP Application"
+        ]
       }
     ],
     "notes": "Good candidate for state programs. Income slightly too high for Pell but qualifies for Enhanced Tuition Award.",
@@ -188,7 +231,12 @@
         "award_amount": 5165,
         "deadline": "May 1",
         "missing_documents": [],
-        "submitted_documents": ["FAFSA", "NY State Tax Return", "Social Security Card", "High School Transcript"]
+        "submitted_documents": [
+          "FAFSA",
+          "NY State Tax Return",
+          "Social Security Card",
+          "High School Transcript"
+        ]
       },
       {
         "program": "Pell Grant",
@@ -197,7 +245,12 @@
         "award_amount": 6895,
         "deadline": "June 30",
         "missing_documents": [],
-        "submitted_documents": ["FAFSA", "Social Security Card", "Driver's License", "Tax Return"]
+        "submitted_documents": [
+          "FAFSA",
+          "Social Security Card",
+          "Driver's License",
+          "Tax Return"
+        ]
       },
       {
         "program": "Excelsior Scholarship",
@@ -206,7 +259,12 @@
         "award_amount": 5500,
         "deadline": "July 31",
         "missing_documents": [],
-        "submitted_documents": ["FAFSA", "TAP Application", "NY Residency Form", "College Transcript"]
+        "submitted_documents": [
+          "FAFSA",
+          "TAP Application",
+          "NY Residency Form",
+          "College Transcript"
+        ]
       },
       {
         "program": "SEOG",
@@ -215,7 +273,11 @@
         "award_amount": 4000,
         "deadline": "March 15",
         "missing_documents": [],
-        "submitted_documents": ["FAFSA", "Financial Aid Transcript", "Enrollment Verification"]
+        "submitted_documents": [
+          "FAFSA",
+          "Financial Aid Transcript",
+          "Enrollment Verification"
+        ]
       }
     ],
     "notes": "Outstanding student - all programs verified and approved. Total aid package: $21,560. No action needed.",

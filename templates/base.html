@@ -478,6 +478,141 @@
                 display: block;
             }
         }
+
+        /* Modal Styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 400px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 40px rgba(30, 60, 114, 0.3);
+            position: relative;
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.active .modal {
+            transform: scale(1);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .modal-title {
+            color: #1e3c72;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin: 0;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #6c757d;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: background-color 0.2s;
+        }
+
+        .modal-close:hover {
+            background-color: #f8f9fa;
+            color: #495057;
+        }
+
+        .modal-form .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .modal-form .form-group label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .modal-form .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .modal-form .form-group input:focus {
+            outline: none;
+            border-color: #2a5298;
+            box-shadow: 0 0 0 3px rgba(42, 82, 152, 0.1);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .modal-actions .btn {
+            flex: 1;
+            justify-content: center;
+            margin: 0;
+        }
+
+        .modal-error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 0.75rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            border: 1px solid #f5c6cb;
+        }
+
+        .modal-success {
+            background: #d4edda;
+            color: #155724;
+            padding: 0.75rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            border: 1px solid #c3e6cb;
+        }
+
+        @media (max-width: 768px) {
+            .modal {
+                margin: 1rem;
+                padding: 1.5rem;
+            }
+            
+            .modal-actions {
+                flex-direction: column;
+            }
+        }
     </style>
 </head>
 <body>
@@ -498,6 +633,19 @@
                 {% else %}
                     <a href="{{ url_for('employee_login') }}" {% if request.endpoint == 'employee_login' %}class="active"{% endif %} style="border-left: 2px solid rgba(255,255,255,0.3); padding-left: 1rem; margin-left: 1rem;">Employee Login</a>
                 {% endif %}
+                
+                <!-- Student Authentication -->
+                {% if session.get('student_logged_in') %}
+                    <div style="border-left: 2px solid rgba(255,255,255,0.3); padding-left: 1rem; margin-left: 1rem; display: flex; align-items: center; gap: 1rem;">
+                        <span style="color: rgba(255,255,255,0.9); font-size: 0.9rem;">Welcome, {{ session.get('student_first_name', 'Student') }}!</span>
+                        <a href="{{ url_for('student_logout') }}" class="btn-secondary" style="font-size: 0.8rem; padding: 0.4rem 0.8rem;">Logout</a>
+                    </div>
+                {% else %}
+                    <div style="border-left: 2px solid rgba(255,255,255,0.3); padding-left: 1rem; margin-left: 1rem; display: flex; gap: 0.5rem;">
+                        <button onclick="openLoginModal()" class="btn-secondary" style="font-size: 0.85rem; padding: 0.5rem 1rem;">Login</button>
+                        <button onclick="openSignupModal()" class="btn" style="font-size: 0.85rem; padding: 0.5rem 1rem;">Sign Up</button>
+                    </div>
+                {% endif %}
             </nav>
             
             <!-- Mobile Navigation Toggle -->
@@ -516,6 +664,17 @@
                 <a href="{{ url_for('employee_logout') }}">Logout ({{ session.get('employee_name', 'Staff') }})</a>
             {% else %}
                 <a href="{{ url_for('employee_login') }}" {% if request.endpoint == 'employee_login' %}class="active"{% endif %}>Employee Login</a>
+            {% endif %}
+            
+            <!-- Student Authentication (Mobile) -->
+            {% if session.get('student_logged_in') %}
+                <div style="padding: 1rem 20px; border-top: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.9);">
+                    Welcome, {{ session.get('student_first_name', 'Student') }}!
+                </div>
+                <a href="{{ url_for('student_logout') }}">Student Logout</a>
+            {% else %}
+                <a href="#" onclick="openLoginModal(); document.getElementById('mobileNav').classList.remove('active');">Student Login</a>
+                <a href="#" onclick="openSignupModal(); document.getElementById('mobileNav').classList.remove('active');">Student Sign Up</a>
             {% endif %}
         </nav>
     </div>
@@ -556,6 +715,64 @@
         </div>
     </div>
     {% endif %}
+
+    <!-- Student Login Modal -->
+    <div class="modal-overlay" id="loginModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Student Login</h3>
+                <button class="modal-close" onclick="closeLoginModal()">&times;</button>
+            </div>
+            <div id="loginMessage"></div>
+            <form class="modal-form" id="loginForm" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label for="loginEmail">Email Address</label>
+                    <input type="email" id="loginEmail" name="email" required placeholder="Enter your email">
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Password</label>
+                    <input type="password" id="loginPassword" name="password" required placeholder="Enter your password">
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeLoginModal()">Cancel</button>
+                    <button type="submit" class="btn">Login</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Student Signup Modal -->
+    <div class="modal-overlay" id="signupModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Create Student Account</h3>
+                <button class="modal-close" onclick="closeSignupModal()">&times;</button>
+            </div>
+            <div id="signupMessage"></div>
+            <form class="modal-form" id="signupForm" onsubmit="handleSignup(event)">
+                <div class="form-group">
+                    <label for="signupFirstName">First Name</label>
+                    <input type="text" id="signupFirstName" name="first_name" required placeholder="Enter your first name">
+                </div>
+                <div class="form-group">
+                    <label for="signupEmail">Email Address</label>
+                    <input type="email" id="signupEmail" name="email" required placeholder="Enter your email">
+                </div>
+                <div class="form-group">
+                    <label for="signupPassword">Password</label>
+                    <input type="password" id="signupPassword" name="password" required placeholder="Create a password">
+                </div>
+                <div class="form-group">
+                    <label for="signupPasswordConfirm">Confirm Password</label>
+                    <input type="password" id="signupPasswordConfirm" name="password_confirm" required placeholder="Confirm your password">
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeSignupModal()">Cancel</button>
+                    <button type="submit" class="btn">Create Account</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <!-- Chatbot -->
     <div class="chatbot-container">
@@ -666,6 +883,146 @@
                 document.getElementById('mobileNav').classList.remove('active');
             });
         });
+
+        // Student Authentication Modal Functions
+        function openLoginModal() {
+            document.getElementById('loginModal').classList.add('active');
+            document.getElementById('loginMessage').innerHTML = '';
+            document.getElementById('loginForm').reset();
+            document.getElementById('loginEmail').focus();
+        }
+
+        function closeLoginModal() {
+            document.getElementById('loginModal').classList.remove('active');
+        }
+
+        function openSignupModal() {
+            document.getElementById('signupModal').classList.add('active');
+            document.getElementById('signupMessage').innerHTML = '';
+            document.getElementById('signupForm').reset();
+            document.getElementById('signupFirstName').focus();
+        }
+
+        function closeSignupModal() {
+            document.getElementById('signupModal').classList.remove('active');
+        }
+
+        // Close modals when clicking outside
+        document.addEventListener('click', function(event) {
+            const loginModal = document.getElementById('loginModal');
+            const signupModal = document.getElementById('signupModal');
+            
+            if (event.target === loginModal) {
+                closeLoginModal();
+            }
+            if (event.target === signupModal) {
+                closeSignupModal();
+            }
+        });
+
+        // Close modals with Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeLoginModal();
+                closeSignupModal();
+            }
+        });
+
+        // Handle Login Form Submission
+        function handleLogin(event) {
+            event.preventDefault();
+            
+            const form = event.target;
+            const formData = new FormData(form);
+            const data = {
+                email: formData.get('email'),
+                password: formData.get('password')
+            };
+            
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const originalText = submitBtn.textContent;
+            submitBtn.textContent = 'Logging in...';
+            submitBtn.disabled = true;
+            
+            fetch('/student-login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(result => {
+                const messageDiv = document.getElementById('loginMessage');
+                
+                if (result.status === 'success') {
+                    messageDiv.innerHTML = `<div class="modal-success">${result.message}</div>`;
+                    setTimeout(() => {
+                        closeLoginModal();
+                        window.location.reload();
+                    }, 1500);
+                } else {
+                    messageDiv.innerHTML = `<div class="modal-error">${result.message}</div>`;
+                    submitBtn.textContent = originalText;
+                    submitBtn.disabled = false;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('loginMessage').innerHTML = '<div class="modal-error">An error occurred. Please try again.</div>';
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+            });
+        }
+
+        // Handle Signup Form Submission
+        function handleSignup(event) {
+            event.preventDefault();
+            
+            const form = event.target;
+            const formData = new FormData(form);
+            const data = {
+                first_name: formData.get('first_name'),
+                email: formData.get('email'),
+                password: formData.get('password'),
+                password_confirm: formData.get('password_confirm')
+            };
+            
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const originalText = submitBtn.textContent;
+            submitBtn.textContent = 'Creating Account...';
+            submitBtn.disabled = true;
+            
+            fetch('/student-signup', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(result => {
+                const messageDiv = document.getElementById('signupMessage');
+                
+                if (result.status === 'success') {
+                    messageDiv.innerHTML = `<div class="modal-success">${result.message}</div>`;
+                    setTimeout(() => {
+                        closeSignupModal();
+                        window.location.reload();
+                    }, 1500);
+                } else {
+                    messageDiv.innerHTML = `<div class="modal-error">${result.message}</div>`;
+                    submitBtn.textContent = originalText;
+                    submitBtn.disabled = false;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('signupMessage').innerHTML = '<div class="modal-error">An error occurred. Please try again.</div>';
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+            });
+        }
     </script>
 </body>
 </html>

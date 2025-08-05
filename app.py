@@ -208,6 +208,59 @@ def clear_session():
     session.clear()
     return redirect(url_for('home'))
 
+# Student Authentication Routes
+@app.route("/student-login", methods=["POST"])
+def student_login():
+    data = request.json
+    email = data.get('email')
+    password = data.get('password')
+    
+    # For now, just simulate login - in real app, check against database
+    if email and password:
+        # Extract first name from email (simple simulation)
+        first_name = email.split('@')[0].capitalize()
+        
+        session['student_logged_in'] = True
+        session['student_email'] = email
+        session['student_first_name'] = first_name
+        
+        return jsonify({'status': 'success', 'message': f'Welcome, {first_name}!'})
+    else:
+        return jsonify({'status': 'error', 'message': 'Please enter both email and password'})
+
+@app.route("/student-signup", methods=["POST"])
+def student_signup():
+    data = request.json
+    first_name = data.get('first_name')
+    email = data.get('email')
+    password = data.get('password')
+    password_confirm = data.get('password_confirm')
+    
+    # Basic validation
+    if not all([first_name, email, password, password_confirm]):
+        return jsonify({'status': 'error', 'message': 'Please fill in all fields'})
+    
+    if password != password_confirm:
+        return jsonify({'status': 'error', 'message': 'Passwords do not match'})
+    
+    if '@' not in email:
+        return jsonify({'status': 'error', 'message': 'Please enter a valid email address'})
+    
+    # For now, just simulate signup - in real app, save to database
+    session['student_logged_in'] = True
+    session['student_email'] = email
+    session['student_first_name'] = first_name
+    
+    return jsonify({'status': 'success', 'message': f'Account created! Welcome, {first_name}!'})
+
+@app.route("/student-logout")
+def student_logout():
+    session.pop('student_logged_in', None)
+    session.pop('student_email', None)
+    session.pop('student_first_name', None)
+    flash('You have been logged out successfully.', 'success')
+    return redirect(url_for('home'))
+
 # Employee Routes
 @app.route("/employee-login")
 def employee_login():
